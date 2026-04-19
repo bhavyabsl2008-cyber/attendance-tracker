@@ -184,3 +184,14 @@ header p { font-size: 14px; opacity: 0.8; margin-top: 4px; }
 
 .clear-btn.hidden { display: none; }
 .clear-btn:hover { border-color: #a32d2d; color: #a32d2d; }
+.edit-btn {
+    background: none;
+    border: none;
+    color: #185FA5;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    margin-right: 4px;
+}
+
+.edit-btn:hover { color: #0c447c; }

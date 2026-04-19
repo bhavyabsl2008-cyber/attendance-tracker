@@ -42,6 +42,46 @@ function deleteSubject(id) {
     renderSubjects();
 }
 
+function editSubject(id) {
+    let subject = subjects.find(s => s.id === id);
+    document.getElementById("subject-name").value = subject.name;
+    document.getElementById("delivered").value = subject.delivered;
+    document.getElementById("attended").value = subject.attended;
+    let btn = document.querySelector(".form-row button");
+    btn.textContent = "Update";
+    btn.onclick = function() { updateSubject(id); };
+    window.scrollTo(0, 0);
+}
+
+function updateSubject(id) {
+    let name = document.getElementById("subject-name").value.trim();
+    let delivered = parseInt(document.getElementById("delivered").value);
+    let attended = parseInt(document.getElementById("attended").value);
+
+    if (!name || isNaN(delivered) || isNaN(attended)) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    if (attended > delivered) {
+        alert("Attended cannot be more than delivered!");
+        return;
+    }
+
+    let index = subjects.findIndex(s => s.id === id);
+    subjects[index].name = name;
+    subjects[index].delivered = delivered;
+    subjects[index].attended = attended;
+
+    saveSubjects(subjects);
+    renderSubjects();
+    clearForm();
+
+    let btn = document.querySelector(".form-row button");
+    btn.textContent = "Add";
+    btn.onclick = addSubject;
+}
+
 function clearAll() {
     if (confirm("Delete all subjects?")) {
         subjects = [];
@@ -81,7 +121,10 @@ function renderSubjects() {
         <div class="subject-card ${status}">
             <div class="card-header">
                 <h3>${subject.name}</h3>
-                <button class="delete-btn" onclick="deleteSubject(${subject.id})">✕</button>
+                <div>
+                    <button class="edit-btn" onclick="editSubject(${subject.id})">✎</button>
+                    <button class="delete-btn" onclick="deleteSubject(${subject.id})">✕</button>
+                </div>
             </div>
             <div class="attendance-bar">
                 <div class="bar-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
