@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker — Chitkara University</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Attendance Tracker</h1>
+        <p>Chitkara University</p>
+    </header>
+
+    <!-- Add Subject Form -->
+    <div class="container">
+        <div class="add-subject-card">
+            <h2>Add Subject</h2>
+            <div class="form-row">
+                <input type="text" id="subject-name" placeholder="Subject name (e.g. C Programming)">
+                <input type="number" id="delivered" placeholder="Classes delivered">
+                <input type="number" id="attended" placeholder="Classes attended">
+                <button onclick="addSubject()">Add</button>
+            </div>
+        </div>
+
+        <!-- Summary Bar -->
+        <div id="summary-bar" class="summary-bar hidden">
+            <div class="summary-item">
+                <span id="total-subjects">0</span>
+                <label>Subjects</label>
+            </div>
+            <div class="summary-item safe">
+                <span id="safe-count">0</span>
+                <label>Safe</label>
+            </div>
+            <div class="summary-item warning">
+                <span id="warning-count">0</span>
+                <label>Warning</label>
+            </div>
+            <div class="summary-item danger">
+                <span id="danger-count">0</span>
+                <label>Danger</label>
+            </div>
+        </div>
+
+        <!-- Subject Cards -->
+        <div id="subjects-container"></div>
+
+        <!-- Clear All -->
+        <button id="clear-btn" class="clear-btn hidden" onclick="clearAll()">
+            Clear All Data
+        </button>
+    </div>
+
+    <script src="js/calculator.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
