@@ -1,161 +1,223 @@
-// app.js - Main application logic
+// app.js — Orchestrator. Connects all modules.
 
-let subjects = loadSubjects();
+const App = {
+    subjects: [],
 
-function addSubject() {
-    let name = document.getElementById("subject-name").value.trim();
-    let delivered = parseInt(document.getElementById("delivered").value);
-    let attended = parseInt(document.getElementById("attended").value);
+    init() {
+        Storage.loadFromURL();
+        Settings.load();
+        this.subjects = Storage.getSubjects();
 
-    if (!name || isNaN(delivered) || isNaN(attended)) {
-        alert("Please fill all fields!");
-        return;
+        const sem = Calculator.semesterProgress();
+        UI.updateSemProgress(sem.progress, sem.remainingDays);
+        UI.updateThresholdDisplay(Settings.threshold);
+
+        this.render();
+        this.bindEvents();
+    },
+
+    bindEvents() {
+        // Threshold input
+        const thresholdInput = document.getElementById('threshold-input');
+        if (thresholdInput) {
+            thresholdInput.addEventListener('change', (e) => {
+                Settings.threshold = e.target.value;
+                UI.toast(`Threshold updated to ${Settings.threshold}%`, 'success');
+                this.render();
+            });
+        }
+
+        // Import file
+        const importInput = document.getElementById('import-input');
+        if (importInput) {
+            importInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    await Storage.importJSON(file);
+                    this.subjects = Storage.getSubjects();
+                    Settings.load();
+                    this.render();
+                    UI.toast('Data imported successfully!', 'success');
+                } catch (err) {
+                    UI.toast('Import failed: ' + err, 'error');
+                }
+                importInput.value = '';
+            });
+        }
+
+        // Chart toggle
+        const chartToggle = document.getElementById('chart-toggle');
+        if (chartToggle) {
+            chartToggle.addEventListener('click', () => {
+                const body = document.getElementById('chart-body');
+                const isHidden = body.classList.toggle('hidden');
+                chartToggle.textContent = isHidden ? 'Show' : 'Hide';
+                if (!isHidden) Charts.render(this.subjects, Settings.threshold);
+            });
+        }
+    },
+
+    render() {
+        const container = document.getElementById('subjects-container');
+        const sem = Calculator.semesterProgress();
+
+        UI.updateSummary(this.subjects, Settings.threshold);
+        const toolbar = document.getElementById('toolbar');
+if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
+
+        container.innerHTML = this.subjects.map(s =>
+            UI.buildCard(s, Settings.threshold, sem.remainingClasses)
+        ).join('');
+
+        // Render chart if visible
+        const chartBody = document.getElementById('chart-body');
+        if (chartBody && !chartBody.classList.contains('hidden')) {
+            Charts.render(this.subjects, Settings.threshold);
+        }
+    },
+
+    addSubject() {
+        UI.clearAllErrors();
+        const name = document.getElementById('subject-name').value.trim();
+        const delivered = parseInt(document.getElementById('delivered').value);
+        const attended = parseInt(document.getElementById('attended').value);
+
+        let hasError = false;
+
+        if (!name) {
+            UI.showError('subject-name', 'Subject name is required');
+            hasError = true;
+        } else if (this.subjects.find(s => s.name.toLowerCase() === name.toLowerCase())) {
+            UI.showError('subject-name', 'Subject already exists');
+            hasError = true;
+        }
+
+        if (isNaN(delivered) || delivered < 0) {
+            UI.showError('delivered', 'Enter a valid number');
+            hasError = true;
+        }
+
+        if (isNaN(attended) || attended < 0) {
+            UI.showError('attended', 'Enter a valid number');
+            hasError = true;
+        }
+
+        if (!hasError && attended > delivered) {
+            UI.showError('attended', 'Cannot exceed classes delivered');
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        const subject = {
+            id: Date.now(),
+            name,
+            delivered,
+            attended
+        };
+
+        this.subjects.push(subject);
+        Storage.saveSubjects(this.subjects);
+        this.render();
+        this.clearForm();
+        UI.toast(`${name} added!`, 'success');
+    },
+
+    saveInlineEdit(id) {
+        const deliveredInput = document.getElementById(`edit-delivered-${id}`);
+        const attendedInput = document.getElementById(`edit-attended-${id}`);
+
+        if (!deliveredInput || !attendedInput) return;
+
+        const delivered = parseInt(deliveredInput.value);
+        const attended = parseInt(attendedInput.value);
+
+        if (isNaN(delivered) || delivered < 0) {
+            UI.toast('Invalid delivered count', 'error');
+            return;
+        }
+
+        if (isNaN(attended) || attended < 0) {
+            UI.toast('Invalid attended count', 'error');
+            return;
+        }
+
+        if (attended > delivered) {
+            UI.toast('Attended cannot exceed delivered', 'error');
+            return;
+        }
+
+        const index = this.subjects.findIndex(s => s.id === id);
+        if (index === -1) return;
+
+        this.subjects[index].delivered = delivered;
+        this.subjects[index].attended = attended;
+
+        Storage.saveSubjects(this.subjects);
+        this.render();
+        UI.toast('Updated!', 'success');
+    },
+
+    deleteSubject(id) {
+        const subject = this.subjects.find(s => s.id === id);
+        if (!subject) return;
+        if (!confirm(`Delete ${subject.name}?`)) return;
+        this.subjects = this.subjects.filter(s => s.id !== id);
+        Storage.saveSubjects(this.subjects);
+        this.render();
+        UI.toast(`${subject.name} deleted`, 'warning');
+    },
+
+    clearAll() {
+        if (!confirm('Delete all subjects? This cannot be undone.')) return;
+        this.subjects = [];
+        Storage.clearAll();
+        Settings.load();
+        this.render();
+        UI.toast('All data cleared', 'warning');
+    },
+
+    applyMLGlobal() {
+        if (this.subjects.length === 0) return;
+        const preview = this.subjects.map(s => {
+            const result = Calculator.applyML(s.attended, s.delivered);
+            return `${s.name}: ${Calculator.percentage(s.attended, s.delivered)}% → ${result.percentage}%`;
+        }).join('\n');
+
+        if (!confirm(`Simulate Medical Leave for ALL subjects?\n\n${preview}`)) return;
+
+        this.subjects = this.subjects.map(s => {
+            const result = Calculator.applyML(s.attended, s.delivered);
+            return { ...s, attended: result.attended, delivered: result.delivered };
+        });
+
+        Storage.saveSubjects(this.subjects);
+        this.render();
+        UI.toast('Medical Leave applied to all subjects', 'success');
+    },
+
+    exportData() {
+        Storage.saveSubjects(this.subjects);
+        Storage.exportJSON();
+        UI.toast('Data exported!', 'success');
+    },
+
+    copyShareLink() {
+        const link = Storage.getShareableLink();
+        navigator.clipboard.writeText(link).then(() => {
+            UI.toast('Share link copied to clipboard!', 'success');
+        }).catch(() => {
+            prompt('Copy this link:', link);
+        });
+    },
+
+    clearForm() {
+        document.getElementById('subject-name').value = '';
+        document.getElementById('delivered').value = '';
+        document.getElementById('attended').value = '';
+        UI.clearAllErrors();
     }
+};
 
-    if (attended > delivered) {
-        alert("Attended cannot be more than delivered!");
-        return;
-    }
-
-    let subject = {
-        id: Date.now(),
-        name: name,
-        delivered: delivered,
-        attended: attended
-    };
-
-    subjects.push(subject);
-    saveSubjects(subjects);
-    renderSubjects();
-    clearForm();
-}
-
-function clearForm() {
-    document.getElementById("subject-name").value = "";
-    document.getElementById("delivered").value = "";
-    document.getElementById("attended").value = "";
-}
-
-function deleteSubject(id) {
-    subjects = subjects.filter(s => s.id !== id);
-    saveSubjects(subjects);
-    renderSubjects();
-}
-
-function editSubject(id) {
-    let subject = subjects.find(s => s.id === id);
-    document.getElementById("subject-name").value = subject.name;
-    document.getElementById("delivered").value = subject.delivered;
-    document.getElementById("attended").value = subject.attended;
-    let btn = document.querySelector(".form-row button");
-    btn.textContent = "Update";
-    btn.onclick = function() { updateSubject(id); };
-    window.scrollTo(0, 0);
-}
-
-function updateSubject(id) {
-    let name = document.getElementById("subject-name").value.trim();
-    let delivered = parseInt(document.getElementById("delivered").value);
-    let attended = parseInt(document.getElementById("attended").value);
-
-    if (!name || isNaN(delivered) || isNaN(attended)) {
-        alert("Please fill all fields!");
-        return;
-    }
-
-    if (attended > delivered) {
-        alert("Attended cannot be more than delivered!");
-        return;
-    }
-
-    let index = subjects.findIndex(s => s.id === id);
-    subjects[index].name = name;
-    subjects[index].delivered = delivered;
-    subjects[index].attended = attended;
-
-    saveSubjects(subjects);
-    renderSubjects();
-    clearForm();
-
-    let btn = document.querySelector(".form-row button");
-    btn.textContent = "Add";
-    btn.onclick = addSubject;
-}
-
-function clearAll() {
-    if (confirm("Delete all subjects?")) {
-        subjects = [];
-        clearAllData();
-        renderSubjects();
-    }
-}
-
-function renderSubjects() {
-    let container = document.getElementById("subjects-container");
-    container.innerHTML = "";
-
-    if (subjects.length === 0) {
-        container.innerHTML = "<p class='empty-msg'>No subjects added yet. Add your first subject above!</p>";
-        document.getElementById("summary-bar").classList.add("hidden");
-        document.getElementById("clear-btn").classList.add("hidden");
-        return;
-    }
-
-    document.getElementById("summary-bar").classList.remove("hidden");
-    document.getElementById("clear-btn").classList.remove("hidden");
-
-    let safeCount = 0, warningCount = 0, dangerCount = 0;
-
-    subjects.forEach(subject => {
-        let percentage = calculatePercentage(subject.attended, subject.delivered);
-        let status = getStatus(parseFloat(percentage));
-        let skips = safeSkips(subject.attended, subject.delivered);
-        let needed = classesNeededToReach75(subject.attended, subject.delivered);
-        let prediction = predictEndSem(subject.attended, subject.delivered, 20);
-
-        if (status === "safe") safeCount++;
-        else if (status === "warning") warningCount++;
-        else dangerCount++;
-
-        let card = `
-        <div class="subject-card ${status}">
-            <div class="card-header">
-                <h3>${subject.name}</h3>
-                <div>
-                    <button class="edit-btn" onclick="editSubject(${subject.id})">✎</button>
-                    <button class="delete-btn" onclick="deleteSubject(${subject.id})">✕</button>
-                </div>
-            </div>
-            <div class="attendance-bar">
-                <div class="bar-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
-            </div>
-            <div class="percentage">${percentage}%</div>
-            <div class="card-stats">
-                <div class="stat">
-                    <span>${subject.attended}/${subject.delivered}</span>
-                    <label>Attended</label>
-                </div>
-                <div class="stat">
-                    <span>${skips}</span>
-                    <label>Can miss</label>
-                </div>
-                <div class="stat">
-                    <span>${needed > 0 ? needed : "✓"}</span>
-                    <label>Need to attend</label>
-                </div>
-            </div>
-            <div class="prediction">
-                Best case: ${prediction.bestCase}% | Worst case: ${prediction.worstCase}%
-            </div>
-        </div>`;
-
-        container.innerHTML += card;
-    });
-
-    document.getElementById("total-subjects").textContent = subjects.length;
-    document.getElementById("safe-count").textContent = safeCount;
-    document.getElementById("warning-count").textContent = warningCount;
-    document.getElementById("danger-count").textContent = dangerCount;
-}
-
-renderSubjects();
+document.addEventListener('DOMContentLoaded', () => App.init());

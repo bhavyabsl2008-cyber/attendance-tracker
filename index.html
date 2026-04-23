@@ -5,26 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Tracker — Chitkara University</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
     <!-- Header -->
     <header>
-        <h1>Attendance Tracker</h1>
-        <p>Chitkara University</p>
-    </header>
-
-    <!-- Add Subject Form -->
-    <div class="container">
-        <div class="add-subject-card">
-            <h2>Add Subject</h2>
-            <div class="form-row">
-                <input type="text" id="subject-name" placeholder="Subject name (e.g. C Programming)">
-                <input type="number" id="delivered" placeholder="Classes delivered">
-                <input type="number" id="attended" placeholder="Classes attended">
-                <button onclick="addSubject()">Add</button>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Attendance Tracker</h1>
+                <p>Chitkara University · Smarter than Chalkpad</p>
+            </div>
+            <div class="header-controls">
+                <div class="threshold-control">
+                    <label>Min %</label>
+                    <input type="number" id="threshold-input" min="50" max="95" value="75">
+                </div>
+                <div class="sem-progress-wrap">
+                    <div class="sem-progress-label">
+                        <span>Semester</span>
+                        <span id="sem-percent">0%</span>
+                    </div>
+                    <div class="sem-progress-bar">
+                        <div class="sem-progress-fill" id="sem-fill"></div>
+                    </div>
+                    <div class="sem-days-left" id="sem-days-left"></div>
+                </div>
             </div>
         </div>
+    </header>
+
+    <div class="container">
 
         <!-- Summary Bar -->
         <div id="summary-bar" class="summary-bar hidden">
@@ -38,7 +52,7 @@
             </div>
             <div class="summary-item warning">
                 <span id="warning-count">0</span>
-                <label>Warning</label>
+                <label>At Risk</label>
             </div>
             <div class="summary-item danger">
                 <span id="danger-count">0</span>
@@ -46,17 +60,74 @@
             </div>
         </div>
 
+        <!-- Chart Section -->
+        <div id="chart-section" class="chart-section hidden">
+            <div class="chart-header">
+                <span class="chart-title">Attendance Overview</span>
+                <button id="chart-toggle" class="chart-toggle-btn">Hide</button>
+            </div>
+            <div id="chart-body" class="chart-body">
+                <canvas id="attendance-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Add Subject -->
+        <div class="add-subject-card">
+            <h2>Add Subject</h2>
+            <div class="form-row">
+                <div class="form-field">
+                    <input type="text" id="subject-name" placeholder="Subject name" autocomplete="off">
+                </div>
+                <div class="form-field">
+                    <input type="number" id="delivered" placeholder="Classes delivered" min="0">
+                </div>
+                <div class="form-field">
+                    <input type="number" id="attended" placeholder="Classes attended" min="0">
+                </div>
+                <button onclick="App.addSubject()">Add</button>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div id="toolbar" class="toolbar hidden">
+            <div class="ml-global-card">
+                <div class="ml-global-left">
+                    <div class="ml-global-title">Medical Leave</div>
+                    <div class="ml-global-sub">+5 attended & delivered to ALL subjects</div>
+                </div>
+                <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Simulate ML</button>
+            </div>
+            <div class="toolbar-actions">
+                <button class="toolbar-btn" onclick="App.exportData()">⬇ Export</button>
+                <label class="toolbar-btn" for="import-input">⬆ Import
+                    <input type="file" id="import-input" accept=".json" style="display:none">
+                </label>
+                <button class="toolbar-btn" onclick="App.copyShareLink()">🔗 Share</button>
+            </div>
+        </div>
+
         <!-- Subject Cards -->
         <div id="subjects-container"></div>
 
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No subjects yet</div>
+            <div class="empty-sub">Add your subjects from Chalkpad to get started</div>
+        </div>
+
         <!-- Clear All -->
-        <button id="clear-btn" class="clear-btn hidden" onclick="clearAll()">
+        <button id="clear-btn" class="clear-btn hidden" onclick="App.clearAll()">
             Clear All Data
         </button>
+
     </div>
 
-    <script src="js/calculator.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
