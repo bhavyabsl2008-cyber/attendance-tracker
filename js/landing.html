@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker — Know Before You Miss</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue: #185FA5;
+            --blue-light: #e8f0fb;
+            --navy: #1a1a2e;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --bg: #ffffff;
+            --bg-soft: #f8faff;
+            --safe: #1D9E75;
+            --warning: #BA7517;
+            --danger: #e53935;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        /* NAV */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+        }
+
+        .nav-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            text-decoration: none;
+        }
+
+        .nav-logo span { color: var(--blue); }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-link {
+            font-size: 14px;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background: var(--bg-soft); color: var(--text); }
+
+        .nav-cta {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            background: var(--blue);
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .nav-cta:hover { opacity: 0.88; }
+
+        /* HERO */
+        .hero {
+            padding: 100px 24px 80px;
+            text-align: center;
+            background: linear-gradient(180deg, #f0f6ff 0%, #ffffff 100%);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--blue-light);
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            letter-spacing: 0.04em;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            color: var(--navy);
+            margin-bottom: 20px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero h1 span { color: var(--blue); }
+
+        .hero-sub {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 14px 28px;
+            background: var(--blue);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(24,95,165,0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(24,95,165,0.4);
+        }
+
+        .btn-secondary {
+            padding: 14px 28px;
+            background: white;
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 10px;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            transform: translateY(-2px);
+        }
+
+        /* HERO PREVIEW */
+        .hero-preview {
+            max-width: 760px;
+            margin: 60px auto 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .preview-bar {
+            background: var(--navy);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preview-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .preview-url {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            margin-left: 8px;
+        }
+
+        .preview-content {
+            padding: 24px;
+            background: #f0f4ff;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #0f0f23, #185FA5);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .preview-header-title { font-size: 15px; font-weight: 700; }
+        .preview-header-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; }
+
+        .preview-threshold {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .preview-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .preview-card.safe { border-left-color: var(--safe); }
+        .preview-card.warning { border-left-color: var(--warning); }
+        .preview-card.danger { border-left-color: var(--danger); }
+
+        .preview-card-name { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+        .preview-card-pct { font-size: 20px; font-weight: 800; }
+        .preview-card.safe .preview-card-pct { color: var(--safe); }
+        .preview-card.warning .preview-card-pct { color: var(--warning); }
+        .preview-card.danger .preview-card-pct { color: var(--danger); }
+        .preview-card-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+        /* PROBLEM SECTION */
+        .problem {
+            padding: 80px 24px;
+            background: var(--navy);
+            color: white;
+            text-align: center;
+        }
+
+        .problem-inner { max-width: 700px; margin: 0 auto; }
+
+        .problem h2 {
+            font-size: clamp(24px, 4vw, 40px);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .problem h2 span { color: #4fc3f7; }
+
+        .problem p {
+            font-size: 17px;
+            opacity: 0.7;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .problem-compare {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .compare-card {
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: left;
+        }
+
+        .compare-card.bad {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .compare-card.good {
+            background: rgba(24,95,165,0.3);
+            border: 1px solid rgba(24,95,165,0.5);
+        }
+
+        .compare-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .compare-card.good .compare-label { color: #4fc3f7; opacity: 1; }
+
+        .compare-item {
+            font-size: 13px;
+            opacity: 0.8;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compare-item:last-child { border-bottom: none; }
+        .compare-icon { font-size: 14px; }
+
+        /* FEATURES */
+        .features {
+            padding: 80px 24px;
+            background: var(--bg-soft);
+        }
+
+        .section-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-sub {
+            text-align: center;
+            font-size: 16px;
+            color: var(--muted);
+            margin-bottom: 48px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .feature-card:hover { transform: translateY(-4px); }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .icon-blue { background: #e8f0fb; }
+        .icon-green { background: #e8f5e9; }
+        .icon-amber { background: #fff8e1; }
+        .icon-purple { background: #f3e5f5; }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* HOW IT WORKS */
+        .how {
+            padding: 80px 24px;
+            background: white;
+        }
+
+        .steps {
+            display: flex;
+            gap: 0;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: calc(16.67% + 20px);
+            right: calc(16.67% + 20px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), #4fc3f7);
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .step-number {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 14px rgba(24,95,165,0.35);
+        }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* STATS */
+        .stats {
+            padding: 60px 24px;
+            background: linear-gradient(135deg, var(--blue), #1a237e);
+            color: white;
+        }
+
+        .stats-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        /* CTA */
+        .cta {
+            padding: 100px 24px;
+            text-align: center;
+            background: var(--bg-soft);
+        }
+
+        .cta h2 {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .cta p {
+            font-size: 17px;
+            color: var(--muted);
+            margin-bottom: 36px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--navy);
+            color: white;
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .footer-logo span { color: #4fc3f7; }
+
+        .footer-sub {
+            font-size: 13px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .footer-link {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover { color: white; }
+
+        .footer-credit {
+            font-size: 12px;
+            opacity: 0.35;
+        }
+
+        /* MOBILE */
+        @media (max-width: 600px) {
+            .nav-links .nav-link { display: none; }
+            .steps::before { display: none; }
+            .step { min-width: 100%; margin-bottom: 32px; }
+            .stats-inner { gap: 32px; }
+            .preview-cards { grid-template-columns: 1fr; }
+            .hero { padding: 70px 20px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-inner">
+            <a href="landing.html" class="nav-logo">Attendance<span>Tracker</span></a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how" class="nav-link">How it works</a>
+                <a href="https://github.com/bhavyabsl2008-cyber/attendance-tracker" class="nav-link" target="_blank">GitHub</a>
+                <a href="index.html" class="nav-cta">Open App →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-badge">✦ Built for Chitkara University</div>
+        <h1>Smarter Attendance.<br><span>Fewer Surprises.</span></h1>
+        <p class="hero-sub">Your university portal shows what happened. We show you what's next — before it's too late.</p>
+        <div class="hero-buttons">
+            <a href="index.html" class="btn-primary">Open App →</a>
+            <a href="https://github.com/bhavyabsl2008-cyber/attendance-tracker" class="btn-secondary" target="_blank">View on GitHub</a>
+        </div>
+
+        <!-- App Preview -->
+        <div class="hero-preview">
+            <div class="preview-bar">
+                <div class="preview-dot" style="background:#ff5f57"></div>
+                <div class="preview-dot" style="background:#febc2e"></div>
+                <div class="preview-dot" style="background:#28c840"></div>
+                <div class="preview-url">attendance-tracker · Chitkara University</div>
+            </div>
+            <div class="preview-content">
+                <div class="preview-header">
+                    <div>
+                        <div class="preview-header-title">Attendance Tracker</div>
+                        <div class="preview-header-sub">Chitkara University · Smarter than Chalkpad</div>
+                    </div>
+                    <div class="preview-threshold">Min % 75</div>
+                </div>
+                <div class="preview-cards">
+                    <div class="preview-card safe">
+                        <div class="preview-card-name">C Programming</div>
+                        <div class="preview-card-pct">90%</div>
+                        <div class="preview-card-sub">Can miss 12 classes</div>
+                    </div>
+                    <div class="preview-card warning">
+                        <div class="preview-card-name">Physics</div>
+                        <div class="preview-card-pct">76%</div>
+                        <div class="preview-card-sub">Only 1 miss left</div>
+                    </div>
+                    <div class="preview-card danger">
+                        <div class="preview-card-name">Maths</div>
+                        <div class="preview-card-pct">71%</div>
+                        <div class="preview-card-sub">Attend 4 to recover</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="problem">
+        <div class="problem-inner">
+            <h2>Chalkpad tells you <span>what happened.</span><br>We tell you what's next.</h2>
+            <p>Every student has refreshed their attendance portal anxiously. We built the tool we wished existed — one that actually helps you plan.</p>
+            <div class="problem-compare">
+                <div class="compare-card bad">
+                    <div class="compare-label">Chalkpad</div>
+                    <div class="compare-item"><span class="compare-icon">✗</span> Shows current percentage</div>
+                    <div class="compare-item"><span class="compare-icon">✗</span> No skip calculator</div>
+                    <div class="compare-item"><span class="compare-icon">✗</span> No leave simulator</div>
+                    <div class="compare-item"><span class="compare-icon">✗</span> No predictions</div>
+                    <div class="compare-item"><span class="compare-icon">✗</span> No smart alerts</div>
+                </div>
+                <div class="compare-card good">
+                    <div class="compare-label">Attendance Tracker</div>
+                    <div class="compare-item"><span class="compare-icon">✓</span> Shows current percentage</div>
+                    <div class="compare-item"><span class="compare-icon">✓</span> Tells you how many you can miss</div>
+                    <div class="compare-item"><span class="compare-icon">✓</span> DL and ML simulator</div>
+                    <div class="compare-item"><span class="compare-icon">✓</span> End semester prediction</div>
+                    <div class="compare-item"><span class="compare-icon">✓</span> Smart color coded alerts</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="section-label">Features</div>
+        <div class="section-title">Everything you need to stay on track</div>
+        <div class="section-sub">Built around how students actually think about attendance — not how portals display it.</div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon icon-blue">📊</div>
+                <div class="feature-title">Smart Skip Calculator</div>
+                <div class="feature-desc">Know exactly how many classes you can miss per subject while staying safely above the threshold.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">📋</div>
+                <div class="feature-title">Leave Simulator</div>
+                <div class="feature-desc">Simulate Full Day DL, Partial DL, or Medical Leave and see the exact impact before you apply.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-amber">🔮</div>
+                <div class="feature-title">End Sem Predictor</div>
+                <div class="feature-desc">See your best case and worst case attendance by the end of semester based on remaining classes.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-purple">⚡</div>
+                <div class="feature-title">Smart Alerts</div>
+                <div class="feature-desc">Color coded warnings that tell you exactly what action to take — before the debar list comes out.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how" id="how">
+        <div class="section-label">How it works</div>
+        <div class="section-title">Three steps. That's it.</div>
+        <div class="section-sub" style="margin-bottom: 60px">No signup, no login, no backend. Just open and go.</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">Add your subjects</div>
+                <div class="step-desc">Enter your subject names and attendance numbers directly from Chalkpad.</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">See your status</div>
+                <div class="step-desc">Instantly see color coded cards, smart alerts, and your safe miss count per subject.</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Plan ahead</div>
+                <div class="step-desc">Use the simulators to see what happens before you take leave — not after.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-num">75%</div>
+                <div class="stat-label">Chitkara minimum threshold</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">0</div>
+                <div class="stat-label">Logins required</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">∞</div>
+                <div class="stat-label">Subjects you can track</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Start tracking today.</h2>
+        <p>Free. No signup. Works on any device.</p>
+        <div class="hero-buttons">
+            <a href="index.html" class="btn-primary">Open App →</a>
+            <a href="https://github.com/bhavyabsl2008-cyber/attendance-tracker" class="btn-secondary" target="_blank">Star on GitHub ⭐</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-logo">Attendance<span>Tracker</span></div>
+            <div class="footer-sub">Chitkara University · Smarter than Chalkpad</div>
+            <div class="footer-links">
+                <a href="index.html" class="footer-link">App</a>
+                <a href="https://github.com/bhavyabsl2008-cyber/attendance-tracker" class="footer-link" target="_blank">GitHub</a>
+            </div>
+            <div class="footer-credit">Built by Bhavya Bansal & Pranavi Salwan · Chitkara University 2026</div>
+        </div>
+    </footer>
+
+</body>
+</html>
