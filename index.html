@@ -2,8 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Attendance Tracker — Chitkara University</title>
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#0f0f23">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AttTracker">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -16,8 +28,8 @@
     <header>
         <div class="header-content">
             <div class="header-text">
-                <h1>Attendance Tracker</h1>
-                <p>Chitkara University · Smarter than Chalkpad</p>
+                <h1>Attendance<span>Tracker</span></h1>
+                <p>Chitkara University · Jan–Jun 2026</p>
             </div>
             <div class="header-controls">
                 <div class="threshold-control">
@@ -26,7 +38,7 @@
                 </div>
                 <div class="sem-progress-wrap">
                     <div class="sem-progress-label">
-                        <span>Semester</span>
+                        <span>Semester progress</span>
                         <span id="sem-percent">0%</span>
                     </div>
                     <div class="sem-progress-bar">
@@ -44,7 +56,7 @@
         <div id="summary-bar" class="summary-bar hidden">
             <div class="summary-item">
                 <span id="total-subjects">0</span>
-                <label>Subjects</label>
+                <label>Total</label>
             </div>
             <div class="summary-item safe">
                 <span id="safe-count">0</span>
@@ -63,7 +75,7 @@
         <!-- Chart Section -->
         <div id="chart-section" class="chart-section hidden">
             <div class="chart-header">
-                <span class="chart-title">Attendance Overview</span>
+                <span class="chart-title">Overview</span>
                 <button id="chart-toggle" class="chart-toggle-btn">Hide</button>
             </div>
             <div id="chart-body" class="chart-body">
@@ -76,33 +88,33 @@
             <h2>Add Subject</h2>
             <div class="form-row">
                 <div class="form-field">
-                    <input type="text" id="subject-name" placeholder="Subject name" autocomplete="off">
+                    <input type="text" id="subject-name" placeholder="Subject name" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="form-field">
-                    <input type="number" id="delivered" placeholder="Classes delivered" min="0">
+                    <input type="number" id="delivered" placeholder="Delivered" min="0" inputmode="numeric">
                 </div>
                 <div class="form-field">
-                    <input type="number" id="attended" placeholder="Classes attended" min="0">
+                    <input type="number" id="attended" placeholder="Attended" min="0" inputmode="numeric">
                 </div>
-                <button onclick="App.addSubject()">Add</button>
+                <button onclick="App.addSubject()">Add →</button>
             </div>
         </div>
 
         <!-- Toolbar -->
         <div id="toolbar" class="toolbar hidden">
-            <div class="ml-global-card">
+            <div id="ml-global-card" class="ml-global-card hidden">
                 <div class="ml-global-left">
                     <div class="ml-global-title">Medical Leave</div>
-                    <div class="ml-global-sub">+5 attended & delivered to ALL subjects</div>
+                    <div class="ml-global-sub">+5 to all subjects — permanently</div>
                 </div>
-                <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Simulate ML</button>
+                <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Apply ML</button>
             </div>
             <div class="toolbar-actions">
-                <button class="toolbar-btn" onclick="App.exportData()">⬇ Export</button>
-                <label class="toolbar-btn" for="import-input">⬆ Import
+                <button class="toolbar-btn" onclick="App.exportData()">Export</button>
+                <label class="toolbar-btn" for="import-input">Import
                     <input type="file" id="import-input" accept=".json" style="display:none">
                 </label>
-                <button class="toolbar-btn" onclick="App.copyShareLink()">🔗 Share</button>
+                <button class="toolbar-btn" onclick="App.copyShareLink()">Share</button>
             </div>
         </div>
 
@@ -111,14 +123,14 @@
 
         <!-- Empty State -->
         <div id="empty-state" class="empty-state">
-            <div class="empty-icon">📋</div>
+            <div class="empty-icon">—</div>
             <div class="empty-title">No subjects yet</div>
             <div class="empty-sub">Add your subjects from Chalkpad to get started</div>
         </div>
 
         <!-- Clear All -->
         <button id="clear-btn" class="clear-btn hidden" onclick="App.clearAll()">
-            Clear All Data
+            Clear all data
         </button>
 
     </div>
@@ -129,5 +141,12 @@
     <script src="js/charts.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
 </body>
 </html>

@@ -10,7 +10,11 @@ const App = {
 
         const sem = Calculator.semesterProgress();
         UI.updateSemProgress(sem.progress, sem.remainingDays);
-        UI.updateThresholdDisplay(Settings.threshold);
+
+        // FIX: updateThresholdDisplay() referenced a non-existent DOM element.
+        // Sync the input value directly instead.
+        const thresholdInput = document.getElementById('threshold-input');
+        if (thresholdInput) thresholdInput.value = Settings.threshold;
 
         this.render();
         this.bindEvents();
@@ -64,7 +68,7 @@ const App = {
 
         UI.updateSummary(this.subjects, Settings.threshold);
         const toolbar = document.getElementById('toolbar');
-if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
+        if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
 
         container.innerHTML = this.subjects.map(s =>
             UI.buildCard(s, Settings.threshold, sem.remainingClasses)
@@ -103,6 +107,7 @@ if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
             hasError = true;
         }
 
+        // FIX: clamp attended to delivered silently, or block — we block with a clear message
         if (!hasError && attended > delivered) {
             UI.showError('attended', 'Cannot exceed classes delivered');
             hasError = true;
@@ -111,7 +116,8 @@ if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
         if (hasError) return;
 
         const subject = {
-            id: Date.now(),
+            // FIX: crypto.randomUUID() instead of Date.now() — no collision on import
+            id: crypto.randomUUID(),
             name,
             delivered,
             attended
@@ -133,18 +139,22 @@ if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
         const delivered = parseInt(deliveredInput.value);
         const attended = parseInt(attendedInput.value);
 
+        // FIX: full validation in inline edit (was missing attended > delivered check)
         if (isNaN(delivered) || delivered < 0) {
-            UI.toast('Invalid delivered count', 'error');
+            UI.toast('Invalid delivered count — must be 0 or more', 'error');
+            deliveredInput.focus();
             return;
         }
 
         if (isNaN(attended) || attended < 0) {
-            UI.toast('Invalid attended count', 'error');
+            UI.toast('Invalid attended count — must be 0 or more', 'error');
+            attendedInput.focus();
             return;
         }
 
         if (attended > delivered) {
             UI.toast('Attended cannot exceed delivered', 'error');
+            attendedInput.focus();
             return;
         }
 
@@ -162,39 +172,62 @@ if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
     deleteSubject(id) {
         const subject = this.subjects.find(s => s.id === id);
         if (!subject) return;
-        if (!confirm(`Delete ${subject.name}?`)) return;
-        this.subjects = this.subjects.filter(s => s.id !== id);
-        Storage.saveSubjects(this.subjects);
-        this.render();
-        UI.toast(`${subject.name} deleted`, 'warning');
+
+        // FIX: replace blocking confirm() with custom modal
+        UI.confirm(
+            `Delete "${subject.name}"?`,
+            'This will remove the subject and all its data.',
+            () => {
+                this.subjects = this.subjects.filter(s => s.id !== id);
+                Storage.saveSubjects(this.subjects);
+                this.render();
+                UI.toast(`${subject.name} deleted`, 'warning');
+            }
+        );
     },
 
     clearAll() {
-        if (!confirm('Delete all subjects? This cannot be undone.')) return;
-        this.subjects = [];
-        Storage.clearAll();
-        Settings.load();
-        this.render();
-        UI.toast('All data cleared', 'warning');
+        // FIX: replace blocking confirm() with custom modal
+        UI.confirm(
+            'Clear all subjects?',
+            'This cannot be undone. All attendance data will be lost.',
+            () => {
+                this.subjects = [];
+                Storage.clearAll();
+                Settings.load();
+                this.render();
+                UI.toast('All data cleared', 'warning');
+            }
+        );
     },
+
+    // FIX: split ML into simulate (preview only) vs apply (permanent)
+    // simulateML is called from the leave simulator on each card — no data mutation
+    // applyMLGlobal is the only function that actually writes to storage
 
     applyMLGlobal() {
         if (this.subjects.length === 0) return;
+
         const preview = this.subjects.map(s => {
             const result = Calculator.applyML(s.attended, s.delivered);
-            return `${s.name}: ${Calculator.percentage(s.attended, s.delivered)}% → ${result.percentage}%`;
+            const before = Calculator.percentage(s.attended, s.delivered);
+            return `${s.name}: ${before}% → ${result.percentage}%`;
         }).join('\n');
 
-        if (!confirm(`Simulate Medical Leave for ALL subjects?\n\n${preview}`)) return;
-
-        this.subjects = this.subjects.map(s => {
-            const result = Calculator.applyML(s.attended, s.delivered);
-            return { ...s, attended: result.attended, delivered: result.delivered };
-        });
-
-        Storage.saveSubjects(this.subjects);
-        this.render();
-        UI.toast('Medical Leave applied to all subjects', 'success');
+        // FIX: replace blocking confirm() with custom modal
+        UI.confirm(
+            'Apply Medical Leave to all subjects?',
+            preview,
+            () => {
+                this.subjects = this.subjects.map(s => {
+                    const result = Calculator.applyML(s.attended, s.delivered);
+                    return { ...s, attended: result.attended, delivered: result.delivered };
+                });
+                Storage.saveSubjects(this.subjects);
+                this.render();
+                UI.toast('Medical Leave applied to all subjects', 'success');
+            }
+        );
     },
 
     exportData() {
@@ -210,6 +243,34 @@ if (toolbar) toolbar.classList.toggle('hidden', this.subjects.length === 0);
         }).catch(() => {
             prompt('Copy this link:', link);
         });
+    },
+
+    // Quick-tap: fastest path to update attendance from a card face
+    // attend = +1 attended, +1 delivered (was in class)
+    // miss   = +1 delivered only (class happened, wasn't there)
+    quickTap(id, action) {
+        const index = this.subjects.findIndex(s => s.id === id);
+        if (index === -1) return;
+
+        const s = this.subjects[index];
+        if (action === 'attend') {
+            this.subjects[index].attended = s.attended + 1;
+            this.subjects[index].delivered = s.delivered + 1;
+        } else {
+            this.subjects[index].delivered = s.delivered + 1;
+        }
+
+        Storage.saveSubjects(this.subjects);
+
+        // FIX: selector used CSS class name which breaks if class is renamed.
+        // Use data-action attribute instead — stable regardless of styling.
+        const btn = document.querySelector(`#card-${id} [data-action="${action}"]`);
+        if (btn) {
+            btn.classList.add('tapped');
+            btn.addEventListener('animationend', () => btn.classList.remove('tapped'), { once: true });
+        }
+
+        setTimeout(() => this.render(), 200);
     },
 
     clearForm() {

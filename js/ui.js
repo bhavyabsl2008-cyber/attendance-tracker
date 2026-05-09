@@ -1,7 +1,8 @@
 // ui.js — All DOM rendering. No data logic here.
 
 const UI = {
-    // Toast notifications
+
+    // ─── TOAST ───
     toast(message, type = 'info', duration = 3000) {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -18,7 +19,54 @@ const UI = {
         }, duration);
     },
 
-    // Inline error messages
+    // ─── CUSTOM CONFIRM MODAL ───
+    // FIX: replaces all native confirm() calls — non-blocking, styleable, mobile-friendly
+    confirm(title, body, onConfirm) {
+        // Remove any existing modal
+        document.getElementById('ui-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'ui-modal';
+        modal.className = 'ui-modal-overlay';
+        modal.innerHTML = `
+            <div class="ui-modal-box" role="dialog" aria-modal="true">
+                <div class="ui-modal-title">${title}</div>
+                <div class="ui-modal-body">${body.replace(/\n/g, '<br>')}</div>
+                <div class="ui-modal-actions">
+                    <button class="ui-modal-cancel" id="modal-cancel">Cancel</button>
+                    <button class="ui-modal-confirm" id="modal-confirm">Confirm</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        requestAnimationFrame(() => modal.classList.add('ui-modal-show'));
+
+        const close = () => {
+            modal.classList.remove('ui-modal-show');
+            setTimeout(() => modal.remove(), 200);
+        };
+
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-confirm').addEventListener('click', () => {
+            close();
+            onConfirm();
+        });
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) close();
+        });
+
+        // Keyboard support
+        const handleKey = (e) => {
+            if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handleKey); }
+            if (e.key === 'Enter') { close(); onConfirm(); document.removeEventListener('keydown', handleKey); }
+        };
+        document.addEventListener('keydown', handleKey);
+    },
+
+    // ─── INLINE ERRORS ───
     showError(fieldId, message) {
         this.clearError(fieldId);
         const field = document.getElementById(fieldId);
@@ -42,7 +90,7 @@ const UI = {
         ['subject-name', 'delivered', 'attended'].forEach(id => this.clearError(id));
     },
 
-    // Semester progress bar
+    // ─── SEMESTER PROGRESS ───
     updateSemProgress(progress, remainingDays) {
         const fill = document.getElementById('sem-fill');
         const percent = document.getElementById('sem-percent');
@@ -52,48 +100,53 @@ const UI = {
         if (days) days.textContent = remainingDays + ' days until end of semester';
     },
 
-    // Summary bar
+    // ─── THRESHOLD DISPLAY ───
+    updateThresholdDisplay(threshold) {
+        const el = document.getElementById('threshold-display');
+        if (el) el.textContent = threshold + '%';
+        const input = document.getElementById('threshold-input');
+        if (input) input.value = threshold;
+    },
+
+    // ─── SUMMARY BAR ───
     updateSummary(subjects, threshold) {
-    const counts = subjects.reduce((acc, s) => {
-        const status = Calculator.status(
-            Calculator.percentage(s.attended, s.delivered), threshold
-        );
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-    }, {});
+        const counts = subjects.reduce((acc, s) => {
+            const status = Calculator.status(
+                Calculator.percentage(s.attended, s.delivered), threshold
+            );
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
 
-    const totalEl = document.getElementById('total-subjects');
-    const safeEl = document.getElementById('safe-count');
-    const warningEl = document.getElementById('warning-count');
-    const dangerEl = document.getElementById('danger-count');
+        const totalEl = document.getElementById('total-subjects');
+        const safeEl = document.getElementById('safe-count');
+        const warningEl = document.getElementById('warning-count');
+        const dangerEl = document.getElementById('danger-count');
 
-    if (totalEl) totalEl.textContent = subjects.length;
-    if (safeEl) safeEl.textContent = counts.safe || 0;
-    if (warningEl) warningEl.textContent = counts.warning || 0;
-    if (dangerEl) dangerEl.textContent = (counts.danger || 0) + (counts.debar || 0);
+        if (totalEl) totalEl.textContent = subjects.length;
+        if (safeEl) safeEl.textContent = counts.safe || 0;
+        if (warningEl) warningEl.textContent = counts.warning || 0;
+        if (dangerEl) dangerEl.textContent = (counts.danger || 0) + (counts.debar || 0);
 
-    const els = {
-        bar: document.getElementById('summary-bar'),
-        mlCard: document.getElementById('ml-global-card'),
-        clearBtn: document.getElementById('clear-btn'),
-        chartSection: document.getElementById('chart-section'),
-        empty: document.getElementById('empty-state'),
-        toolbar: document.getElementById('toolbar')
-    };
+        const els = {
+            bar: document.getElementById('summary-bar'),
+            mlCard: document.getElementById('ml-global-card'),
+            clearBtn: document.getElementById('clear-btn'),
+            chartSection: document.getElementById('chart-section'),
+            empty: document.getElementById('empty-state'),
+            toolbar: document.getElementById('toolbar')
+        };
 
-    const isEmpty = subjects.length === 0;
-    if (els.bar) els.bar.classList.toggle('hidden', isEmpty);
-    if (els.mlCard) els.mlCard.classList.toggle('hidden', isEmpty);
-    if (els.clearBtn) els.clearBtn.classList.toggle('hidden', isEmpty);
-    if (els.chartSection) els.chartSection.classList.toggle('hidden', isEmpty);
-    if (els.empty) els.empty.classList.toggle('hidden', !isEmpty);
-    if (els.toolbar) els.toolbar.classList.toggle('hidden', isEmpty);
-},
+        const isEmpty = subjects.length === 0;
+        if (els.bar) els.bar.classList.toggle('hidden', isEmpty);
+        if (els.mlCard) els.mlCard.classList.toggle('hidden', isEmpty);
+        if (els.clearBtn) els.clearBtn.classList.toggle('hidden', isEmpty);
+        if (els.chartSection) els.chartSection.classList.toggle('hidden', isEmpty);
+        if (els.empty) els.empty.classList.toggle('hidden', !isEmpty);
+        if (els.toolbar) els.toolbar.classList.toggle('hidden', isEmpty);
+    },
 
-        
-        
-
-    // Single subject card
+    // ─── SUBJECT CARD ───
     buildCard(subject, threshold, remainingClasses) {
         const pct = Calculator.percentage(subject.attended, subject.delivered);
         const status = Calculator.status(pct, threshold);
@@ -111,18 +164,15 @@ const UI = {
 
             <div class="card-header">
                 <div class="card-header-left">
-                    <h3 class="subject-title" 
-                        contenteditable="false"
-                        data-original="${subject.name}"
+                    <h3 class="subject-title"
                         id="title-${subject.id}"
-                        onblur="App.saveInlineEdit(${subject.id})"
-                        onkeydown="UI.handleTitleKey(event, ${subject.id})"
+                        data-original="${subject.name}"
                     >${subject.name}</h3>
                     <span class="status-badge ${status}">${statusLabels[status]}</span>
                 </div>
                 <div class="card-actions">
-                    <button class="edit-btn" onclick="UI.toggleInlineEdit(${subject.id})" id="edit-btn-${subject.id}">Edit</button>
-                    <button class="delete-btn" onclick="App.deleteSubject(${subject.id})">✕</button>
+                    <button class="edit-btn" onclick="UI.toggleInlineEdit('${subject.id}')" id="edit-btn-${subject.id}">Edit</button>
+                    <button class="delete-btn" onclick="App.deleteSubject('${subject.id}')">✕</button>
                 </div>
             </div>
 
@@ -138,10 +188,26 @@ const UI = {
                         <input type="number" id="edit-attended-${subject.id}" value="${subject.attended}" min="0">
                     </div>
                     <div class="inline-actions">
-                        <button class="save-inline-btn" onclick="App.saveInlineEdit(${subject.id})">Save</button>
-                        <button class="cancel-inline-btn" onclick="UI.cancelInlineEdit(${subject.id})">Cancel</button>
+                        <button class="save-inline-btn" onclick="App.saveInlineEdit('${subject.id}')">Save</button>
+                        <button class="cancel-inline-btn" onclick="UI.cancelInlineEdit('${subject.id}')">Cancel</button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Quick Tap — fastest mobile update path -->
+            <div class="quick-tap-row">
+                <button class="quick-tap-btn attended-class"
+                    data-action="attend"
+                    onclick="App.quickTap('${subject.id}', 'attend')"
+                    title="Attended a class — +1 both">
+                    ✓ Attended class
+                </button>
+                <button class="quick-tap-btn missed-class"
+                    data-action="miss"
+                    onclick="App.quickTap('${subject.id}', 'miss')"
+                    title="Missed a class — +1 delivered only">
+                    ✕ Missed class
+                </button>
             </div>
 
             <!-- Smart alert -->
@@ -154,15 +220,9 @@ const UI = {
             <div class="percentage-row">
                 <div class="percentage ${status}-text">${pct}%</div>
                 <div class="attended-label">
-                    <span class="inline-stat" 
-                        contenteditable="false"
-                        id="attended-display-${subject.id}"
-                    >${subject.attended}</span>
+                    <span>${subject.attended}</span>
                     <span> / </span>
-                    <span class="inline-stat"
-                        contenteditable="false"  
-                        id="delivered-display-${subject.id}"
-                    >${subject.delivered}</span>
+                    <span>${subject.delivered}</span>
                     <span> classes</span>
                 </div>
             </div>
@@ -202,7 +262,7 @@ const UI = {
                     <label>Skip next</label>
                     <input type="number" min="0" max="50" value="0"
                         id="skip-sim-${subject.id}"
-                        oninput="UI.updateSkipSim(${subject.id}, ${subject.attended}, ${subject.delivered})"
+                        oninput="UI.updateSkipSim('${subject.id}', ${subject.attended}, ${subject.delivered})"
                         placeholder="0">
                     <label>classes →</label>
                     <span class="sim-result" id="skip-result-${subject.id}">—</span>
@@ -211,7 +271,7 @@ const UI = {
                     <label>Attend next</label>
                     <input type="number" min="0" max="50" value="0"
                         id="attend-sim-${subject.id}"
-                        oninput="UI.updateAttendSim(${subject.id}, ${subject.attended}, ${subject.delivered})"
+                        oninput="UI.updateAttendSim('${subject.id}', ${subject.attended}, ${subject.delivered})"
                         placeholder="0">
                     <label>classes →</label>
                     <span class="sim-result" id="attend-result-${subject.id}">—</span>
@@ -224,11 +284,11 @@ const UI = {
                     <span class="leave-title">Leave Simulator</span>
                     <div class="pill-toggle">
                         <button class="pill active" id="pill-fullday-${subject.id}"
-                            onclick="UI.switchLeaveType(${subject.id}, 'fullday')">Full Day DL</button>
+                            onclick="UI.switchLeaveType('${subject.id}', 'fullday')">Full Day DL</button>
                         <button class="pill" id="pill-partial-${subject.id}"
-                            onclick="UI.switchLeaveType(${subject.id}, 'partial')">Partial DL</button>
+                            onclick="UI.switchLeaveType('${subject.id}', 'partial')">Partial DL</button>
                         <button class="pill" id="pill-ml-${subject.id}"
-                            onclick="UI.switchLeaveType(${subject.id}, 'ml')">ML</button>
+                            onclick="UI.switchLeaveType('${subject.id}', 'ml')">ML</button>
                     </div>
                 </div>
 
@@ -236,13 +296,13 @@ const UI = {
                     <label>Classes held that day</label>
                     <input type="number" min="0" max="10" value="0"
                         id="dl-classes-${subject.id}"
-                        oninput="UI.updateLeave(${subject.id})">
+                        oninput="UI.updateLeave('${subject.id}')">
                 </div>
 
                 <div id="leave-partial-${subject.id}" class="leave-panel hidden">
                     <label class="checkbox-label">
                         <input type="checkbox" id="dl-partial-check-${subject.id}"
-                            onchange="UI.updateLeave(${subject.id})">
+                            onchange="UI.updateLeave('${subject.id}')">
                         <span>I have a class during the event time</span>
                     </label>
                 </div>
@@ -259,7 +319,7 @@ const UI = {
         </div>`;
     },
 
-    // Pill toggle for leave type
+    // ─── LEAVE SIMULATOR ───
     switchLeaveType(id, type) {
         ['fullday', 'partial', 'ml'].forEach(t => {
             const pill = document.getElementById(`pill-${t}-${id}`);
@@ -286,6 +346,7 @@ const UI = {
             const hasClass = document.getElementById(`dl-partial-check-${id}`)?.checked || false;
             result = Calculator.applyPartialDL(subject.attended, subject.delivered, hasClass);
         } else {
+            // ML on card is always simulation only — never writes to storage
             result = Calculator.applyML(subject.attended, subject.delivered);
         }
 
@@ -298,6 +359,7 @@ const UI = {
         }
     },
 
+    // ─── SKIP/ATTEND SIMULATORS ───
     updateSkipSim(id, attended, delivered) {
         const val = parseInt(document.getElementById(`skip-sim-${id}`)?.value) || 0;
         const newPct = Calculator.simulateSkip(attended, delivered, val);
@@ -316,6 +378,7 @@ const UI = {
         if (el) el.innerHTML = `<span style="color:${colors[status]}">${newPct}%</span>`;
     },
 
+    // ─── INLINE EDIT TOGGLE ───
     toggleInlineEdit(id) {
         const panel = document.getElementById(`inline-edit-${id}`);
         const btn = document.getElementById(`edit-btn-${id}`);
@@ -337,15 +400,11 @@ const UI = {
         if (btn) btn.textContent = 'Edit';
     },
 
+    // FIX: removed broken contenteditable title handler.
+    // Title editing via contenteditable was calling saveInlineEdit which only saves
+    // delivered/attended inputs — the name change was silently dropped.
+    // Title is now static text. Rename via the Edit panel if needed (future feature).
     handleTitleKey(event, id) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            document.getElementById(`title-${id}`)?.blur();
-        }
-        if (event.key === 'Escape') {
-            const el = document.getElementById(`title-${id}`);
-            if (el) el.textContent = el.dataset.original;
-            el?.blur();
-        }
+        // Reserved for future name-edit feature
     }
 };

@@ -14,33 +14,21 @@ const Calculator = {
         return 'debar';
     },
 
+    // O(1) closed-form — no while loop
     safeSkips(attended, delivered, threshold = 75) {
-        if (this.percentage(attended, delivered) < threshold) return 0;
-        let skips = 0;
-        while (((attended) / (delivered + skips + 1)) * 100 >= threshold) {
-            skips++;
-        }
-        return skips;
+        const t = threshold / 100;
+        const skips = Math.floor((attended - t * delivered) / t);
+        return Math.max(0, skips);
     },
 
     classesNeeded(attended, delivered, threshold = 75) {
         if (this.percentage(attended, delivered) >= threshold) return 0;
-        let needed = 0;
-        while (((attended + needed) / (delivered + needed)) * 100 < threshold) {
-            needed++;
-        }
-        return needed;
+        const t = threshold / 100;
+        return Math.ceil((t * delivered - attended) / (1 - t));
     },
 
     classesUntilDanger(attended, delivered, threshold = 75) {
-        // how many more misses until dropping below threshold
-        let misses = 0;
-        let current = this.percentage(attended, delivered);
-        if (current < threshold) return 0;
-        while (((attended) / (delivered + misses + 1)) * 100 >= threshold) {
-            misses++;
-        }
-        return misses;
+        return this.safeSkips(attended, delivered, threshold);
     },
 
     predictEndSem(attended, delivered, remainingClasses) {
@@ -55,8 +43,7 @@ const Calculator = {
     },
 
     simulateSkip(attended, delivered, skipCount) {
-        const newDelivered = delivered + Math.max(0, skipCount);
-        return this.percentage(attended, newDelivered);
+        return this.percentage(attended, delivered + Math.max(0, skipCount));
     },
 
     simulateAttend(attended, delivered, attendCount) {
@@ -91,14 +78,19 @@ const Calculator = {
     },
 
     semesterProgress() {
-        const start = new Date('2026-01-20');
-        const end = new Date('2026-06-15');
+        // FIX: string date 'YYYY-MM-DD' parses as UTC midnight.
+        // new Date() is local time. On IST this causes an off-by-one at midnight.
+        // Constructor with (year, month, day) always uses local timezone — safe everywhere.
+        const start = new Date(2026, 0, 20); // Jan 20 2026, local time
+        const end   = new Date(2026, 5, 15); // Jun 15 2026, local time
         const today = new Date();
+
         const total = end - start;
         const elapsed = today - start;
         const progress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
         const remainingDays = Math.max(Math.ceil((end - today) / 86400000), 0);
         const remainingClasses = Math.round(remainingDays * 0.6);
+
         return {
             progress: parseFloat(progress.toFixed(1)),
             remainingDays,
@@ -112,26 +104,14 @@ const Calculator = {
         const needed = this.classesNeeded(attended, delivered, threshold);
 
         if (pct >= threshold + 5) {
-            return {
-                type: 'safe',
-                message: `You can safely miss ${skips} more class${skips !== 1 ? 'es' : ''} and stay above ${threshold}%`
-            };
+            return { type: 'safe',    message: `You can safely miss ${skips} more class${skips !== 1 ? 'es' : ''} and stay above ${threshold}%` };
         }
         if (pct >= threshold) {
-            return {
-                type: 'warning',
-                message: `Careful — only ${skips} miss${skips !== 1 ? 'es' : ''} left before dropping below ${threshold}%`
-            };
+            return { type: 'warning', message: `Careful — only ${skips} miss${skips !== 1 ? 'es' : ''} left before dropping below ${threshold}%` };
         }
         if (pct >= threshold - 15) {
-            return {
-                type: 'danger',
-                message: `Attend ${needed} consecutive class${needed !== 1 ? 'es' : ''} to get back above ${threshold}%`
-            };
+            return { type: 'danger',  message: `Attend ${needed} consecutive class${needed !== 1 ? 'es' : ''} to get back above ${threshold}%` };
         }
-        return {
-            type: 'debar',
-            message: `Critical — attend every class immediately. Need ${needed} classes to reach ${threshold}%`
-        };
+        return { type: 'debar', message: `Critical — attend every class immediately. Need ${needed} classes to reach ${threshold}%` };
     }
 };
