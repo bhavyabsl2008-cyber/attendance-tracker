@@ -34,6 +34,7 @@
                 <p>Chitkara University · Jan–Jun 2026</p>
             </div>
             <div class="header-controls">
+                <button id="dark-mode-toggle" class="dark-mode-btn" onclick="DarkMode.toggle()" title="Toggle dark mode">🌙</button>
                 <div class="threshold-control">
                     <label>Min %</label>
                     <input type="number" id="threshold-input" min="50" max="95" value="75">
@@ -48,9 +49,6 @@
                     </div>
                     <div class="sem-days-left" id="sem-days-left"></div>
                 </div>
-                <button id="dark-mode-toggle" class="dark-mode-btn" onclick="DarkMode.toggle()" title="Toggle dark mode">
-                    <span class="dark-icon">🌙</span>
-                </button>
             </div>
         </div>
     </header>
@@ -140,6 +138,7 @@
 
     </div>
 
+    <script src="js/darkmode.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/calculator.js"></script>
     <script src="js/settings.js"></script>

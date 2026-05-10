@@ -46,20 +46,20 @@
 
 /* Dark mode */
 :root.dark-mode {
-    --safe: #10b981;
-    --safe-bg: #064e3b;
-    --safe-border: #047857;
-    --warning: #f59e0b;
-    --warning-bg: #78350f;
-    --warning-border: #b45309;
-    --danger: #ef4444;
-    --danger-bg: #7f1d1d;
-    --danger-border: #991b1b;
+    --safe: #34d399;
+    --safe-bg: #1f3a37;
+    --safe-border: #10b981;
+    --warning: #fbbf24;
+    --warning-bg: #3a2f0b;
+    --warning-border: #f59e0b;
+    --danger: #f87171;
+    --danger-bg: #3f1515;
+    --danger-border: #ef4444;
     --debar: #fca5a5;
-    --debar-bg: #7f1d1d;
+    --debar-bg: #3f1515;
 
-    --blue: #3b82f6;
-    --blue-dark: #1e40af;
+    --blue: #60a5fa;
+    --blue-dark: #3b82f6;
     --blue-light: #1e3a8a;
 
     --bg: #0f172a;
@@ -83,9 +83,10 @@ body {
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    line-height: 1.5;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     padding-bottom: max(20px, env(safe-area-inset-bottom));
+    font-size: 15px;
 }
 
 /* ============ TOASTS ============ */
@@ -357,29 +358,20 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.08);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
     cursor: pointer;
-    font-size: 18px;
-    transition: all 0.25s ease;
+    font-size: 16px;
+    transition: background 0.2s ease;
     padding: 0;
 }
 
 .dark-mode-btn:hover {
-    background: rgba(255,255,255,0.15);
-    border-color: rgba(255,255,255,0.25);
-}
-
-.dark-icon {
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.dark-mode-btn:active .dark-icon {
-    transform: scale(1.2) rotate(20deg);
+    background: rgba(255,255,255,0.18);
 }
 
 /* ============ CONTAINER ============ */
@@ -852,12 +844,12 @@ header {
 
 .quick-tap-btn {
     flex: 1;
-    padding: 9px 10px;
+    padding: 10px 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--bg);
     color: var(--text-soft);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     font-family: var(--font-body);
     cursor: pointer;
@@ -943,7 +935,7 @@ header {
 }
 
 .percentage {
-    font-size: 42px;
+    font-size: 48px;
     font-weight: 400;
     letter-spacing: -2px;
     line-height: 1;
@@ -1027,7 +1019,7 @@ header {
 }
 
 .stat span {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 400;
     font-family: var(--font-mono);
     display: block;
@@ -1036,7 +1028,7 @@ header {
 }
 
 .stat label {
-    font-size: 9px;
+    font-size: 10px;
     color: var(--muted-light);
     text-transform: uppercase;
     letter-spacing: 0.06em;
