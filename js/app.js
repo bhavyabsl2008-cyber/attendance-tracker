@@ -16,6 +16,7 @@ const App = {
         if (thresholdInput) thresholdInput.value = Settings.threshold;
 
         this.render();
+        this._updateOnboardingState();
         this.bindEvents();
     },
 
@@ -252,9 +253,33 @@ const App = {
             TimetableUI.showWeekView();
         } else {
             TimetableUI.showSetup(() => {
-                this.render(); // re-render cards so DL picker updates
-                UI.toast(`Timetable loaded for ${Timetable.getBatch()} Group ${Timetable.getGroup()}`, 'success');
+                this.render();
+                this._updateOnboardingState();
+                UI.toast(`Timetable loaded — ${Timetable.getBatch()} · Group ${Timetable.getGroup()}`, 'success');
             });
+        }
+    },
+
+    _updateOnboardingState() {
+        const ttCard = document.getElementById('onboard-timetable');
+        const stepBadge = document.getElementById('onboard-step-badge');
+        if (!ttCard) return;
+
+        if (Timetable.isSetup()) {
+            // Mark timetable step done, make subjects step primary
+            ttCard.classList.remove('onboard-primary');
+            ttCard.classList.add('onboard-done');
+            ttCard.innerHTML = `
+                <div class="onboard-done-check">✓</div>
+                <div class="onboard-title">Timetable Set</div>
+                <div class="onboard-sub">${Timetable.getBatch()} · Group ${Timetable.getGroup()} · <button class="onboard-change-link" onclick="App.openTimetable()">View / Change</button></div>
+            `;
+            const subjectsCard = document.getElementById('onboard-subjects');
+            if (subjectsCard) {
+                subjectsCard.classList.add('onboard-primary');
+                subjectsCard.classList.remove('onboard-secondary');
+            }
+            if (stepBadge) stepBadge.textContent = 'Step 2';
         }
     },
 

@@ -127,9 +127,26 @@
 
         <!-- Empty State -->
         <div id="empty-state" class="empty-state">
-            <div class="empty-icon">—</div>
-            <div class="empty-title">No subjects yet</div>
-            <div class="empty-sub">Add your subjects from Chalkpad to get started</div>
+
+            <!-- Step 1: Timetable setup (shown when timetable not set up) -->
+            <div id="onboard-timetable" class="onboard-card onboard-primary">
+                <div class="onboard-step-badge">Step 1</div>
+                <div class="onboard-icon">📅</div>
+                <div class="onboard-title">Set Up Your Timetable</div>
+                <div class="onboard-sub">Tell us your batch and group. We'll auto-calculate your attendance impact for any DL or holiday — no manual counting.</div>
+                <button class="onboard-cta-btn" onclick="App.openTimetable()">
+                    Set Up Timetable →
+                </button>
+            </div>
+
+            <!-- Step 2: Add subjects (always shown) -->
+            <div class="onboard-card onboard-secondary" id="onboard-subjects">
+                <div class="onboard-step-badge" id="onboard-step-badge">Step 2</div>
+                <div class="onboard-icon">📚</div>
+                <div class="onboard-title">Add Your Subjects</div>
+                <div class="onboard-sub">Enter your subjects from Chalkpad with delivered and attended class counts.</div>
+            </div>
+
         </div>
 
         <!-- Clear All -->
