@@ -19,6 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/timetable.css">
     <script src="js/darkmode.js"></script>
 </head>
 <body>
@@ -112,6 +113,7 @@
                 <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Apply ML</button>
             </div>
             <div class="toolbar-actions">
+                <button class="tt-toolbar-btn" onclick="App.openTimetable()">📅 Timetable</button>
                 <button class="toolbar-btn" onclick="App.exportData()">Export</button>
                 <label class="toolbar-btn" for="import-input">Import
                     <input type="file" id="import-input" accept=".json" style="display:none">
@@ -141,6 +143,8 @@
     <script src="js/storage.js"></script>
     <script src="js/calculator.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/timetable.js"></script>
+    <script src="js/timetable-ui.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>

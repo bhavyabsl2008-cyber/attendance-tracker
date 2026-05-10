@@ -6,13 +6,12 @@ const App = {
     init() {
         Storage.loadFromURL();
         Settings.load();
+        Timetable.load();
         this.subjects = Storage.getSubjects();
 
         const sem = Calculator.semesterProgress();
         UI.updateSemProgress(sem.progress, sem.remainingDays);
 
-        // FIX: updateThresholdDisplay() referenced a non-existent DOM element.
-        // Sync the input value directly instead.
         const thresholdInput = document.getElementById('threshold-input');
         if (thresholdInput) thresholdInput.value = Settings.threshold;
 
@@ -248,6 +247,17 @@ const App = {
     // Quick-tap: fastest path to update attendance from a card face
     // attend = +1 attended, +1 delivered (was in class)
     // miss   = +1 delivered only (class happened, wasn't there)
+    openTimetable() {
+        if (Timetable.isSetup()) {
+            TimetableUI.showWeekView();
+        } else {
+            TimetableUI.showSetup(() => {
+                this.render(); // re-render cards so DL picker updates
+                UI.toast(`Timetable loaded for ${Timetable.getBatch()} Group ${Timetable.getGroup()}`, 'success');
+            });
+        }
+    },
+
     quickTap(id, action) {
         const index = this.subjects.findIndex(s => s.id === id);
         if (index === -1) return;

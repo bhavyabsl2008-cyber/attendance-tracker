@@ -293,10 +293,16 @@ const UI = {
                 </div>
 
                 <div id="leave-fullday-${subject.id}" class="leave-panel">
-                    <label>Classes held that day</label>
-                    <input type="number" min="0" max="10" value="0"
-                        id="dl-classes-${subject.id}"
-                        oninput="UI.updateLeave('${subject.id}')">
+                    ${Timetable.isSetup()
+                        ? TimetableUI.buildDLDayPicker(subject.id)
+                        : `<label>Classes held that day</label>
+                           <input type="number" min="0" max="10" value="0"
+                               id="dl-classes-${subject.id}"
+                               oninput="UI.updateLeave('${subject.id}')">
+                           <div style="margin-top:8px;font-size:11px;color:var(--muted);font-family:var(--font-mono)">
+                               Set up your timetable for auto-calculation
+                           </div>`
+                    }
                 </div>
 
                 <div id="leave-partial-${subject.id}" class="leave-panel hidden">
