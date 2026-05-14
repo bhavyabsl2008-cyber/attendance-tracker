@@ -368,20 +368,20 @@ const UI = {
     // ─── SKIP/ATTEND SIMULATORS ───
     updateSkipSim(id, attended, delivered) {
         const val = parseInt(document.getElementById(`skip-sim-${id}`)?.value) || 0;
-        const newPct = Calculator.simulateSkip(attended, delivered, val);
-        const status = Calculator.status(newPct, Settings.threshold);
-        const colors = { safe: '#1D9E75', warning: '#BA7517', danger: '#e53935', debar: '#7f0000' };
+        const result = Calculator.simulateSkips(attended, delivered, val);
+        const status = Calculator.status(result.percentage, Settings.threshold);
+        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
         const el = document.getElementById(`skip-result-${id}`);
-        if (el) el.innerHTML = `<span style="color:${colors[status]}">${newPct}%</span>`;
+        if (el) el.innerHTML = `<span style="color:${colors[status]}">${result.percentage}%</span>`;
     },
 
     updateAttendSim(id, attended, delivered) {
         const val = parseInt(document.getElementById(`attend-sim-${id}`)?.value) || 0;
-        const newPct = Calculator.simulateAttend(attended, delivered, val);
-        const status = Calculator.status(newPct, Settings.threshold);
-        const colors = { safe: '#1D9E75', warning: '#BA7517', danger: '#e53935', debar: '#7f0000' };
+        const result = Calculator.simulateAttends(attended, delivered, val);
+        const status = Calculator.status(result.percentage, Settings.threshold);
+        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
         const el = document.getElementById(`attend-result-${id}`);
-        if (el) el.innerHTML = `<span style="color:${colors[status]}">${newPct}%</span>`;
+        if (el) el.innerHTML = `<span style="color:${colors[status]}">${result.percentage}%</span>`;
     },
 
     // ─── INLINE EDIT TOGGLE ───

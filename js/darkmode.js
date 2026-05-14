@@ -33,6 +33,16 @@ const DarkMode = {
         } else {
             root.classList.remove('dark-mode');
         }
+        
+        // Update button icon - show sun when dark mode on, moon when off
+        const btn = document.getElementById('dark-mode-btn');
+        if (btn) {
+            const icon = btn.querySelector('.dark-mode-icon');
+            if (icon) {
+                icon.textContent = isDark ? '☀️' : '🌙';
+            }
+        }
+        
         // Save choice to localStorage
         localStorage.setItem(this.STORAGE_KEY, isDark.toString());
     },
