@@ -78,6 +78,35 @@
     --shadow-hover: 0 4px 12px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.5);
 }
 
+:root.dark-mode {
+    background: var(--bg);
+    color: var(--text);
+}
+
+:root.dark-mode body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+:root.dark-mode input,
+:root.dark-mode select,
+:root.dark-mode textarea {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+:root.dark-mode input:focus,
+:root.dark-mode select:focus,
+:root.dark-mode textarea:focus {
+    background: #334155;
+    border-color: #60a5fa;
+}
+
+:root.dark-mode button {
+    color: var(--text);
+}
+
 body {
     font-family: var(--font-body);
     background: var(--bg);
@@ -536,19 +565,27 @@ header {
     border-radius: var(--radius-sm);
     font-size: 14px;
     outline: none;
-    background: var(--bg);
-    transition: border-color var(--transition), background var(--transition);
+    background: var(--card);
     color: var(--text);
+    transition: border-color var(--transition), background var(--transition);
     font-family: var(--font-body);
 }
 
 .form-field input:focus {
     border-color: var(--blue);
-    background: var(--bg);
+    background: var(--card);
+}
+
+:root.dark-mode .form-field input,
+:root.dark-mode .form-row > input {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
 }
 
 :root.dark-mode .form-field input:focus {
     background: #334155;
+    border-color: #60a5fa;
 }
 
 .form-field input[type="number"] {
