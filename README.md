@@ -4,7 +4,7 @@
 
 **Smart attendance tracking for Chitkara University CSE-1**
 
-[Live App](https://bhavyabsl2008-cyber.github.io/attendance-tracker/index.html) · [Landing Page](https://bhavyabsl2008-cyber.github.io/attendance-tracker/landing.html) · [Report a Bug](https://github.com/bhavyabsl2008-cyber/attendance-tracker/issues)
+[Live App](https://bhavyabsl2008-cyber.github.io/attendance-tracker/) · [GitHub](https://github.com/bhavyabsl2008-cyber/attendance-tracker) · [Report a Bug](https://github.com/bhavyabsl2008-cyber/attendance-tracker/issues)
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-ready-brightgreen?style=flat-square)
@@ -180,6 +180,6 @@ Built in April–May 2026 as a first-year CSE project at Chitkara University.
 
 Made at Chitkara University · CSE-1 · 2026
 
-[Live App →](https://bhavyabsl2008-cyber.github.io/attendance-tracker/index.html)
+[Live App →](https://bhavyabsl2008-cyber.github.io/attendance-tracker/) · [GitHub →](https://github.com/bhavyabsl2008-cyber/attendance-tracker)
 
 </div>
