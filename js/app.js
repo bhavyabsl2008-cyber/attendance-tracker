@@ -1,5 +1,7 @@
 // app.js — Orchestrator. Connects all modules.
 
+console.log('✓ App loading. TimetableUI available?', typeof TimetableUI);
+
 const App = {
     subjects: [],
 
