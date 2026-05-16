@@ -252,9 +252,9 @@ const App = {
     // miss   = +1 delivered only (class happened, wasn't there)
     openTimetable() {
         if (Timetable.isSetup()) {
-            TimetableUI.showWeekView();
+            Timetable-ui.showWeekView();
         } else {
-            TimetableUI.showSetup(() => {
+            Timetable-ui.showSetup(() => {
                 this.render();
                 this._updateOnboardingState();
                 UI.toast(`Timetable loaded — ${Timetable.getBatch()} · Group ${Timetable.getGroup()}`, 'success');
