@@ -128,9 +128,9 @@ const Calculator = {
 
     // Semester progress
     semesterProgress() {
-        // Jan 20 to Jun 15 2026 (148 days, ~88 classes at 0.6 per day)
+        // Jan 20 to Jun 6 2026 — exams start Jun 7 (140 days, ~84 classes at 0.6 per day)
         const start = new Date(2026, 0, 20);  // Jan 20 local time
-        const end = new Date(2026, 5, 15);   // Jun 15 local time
+        const end = new Date(2026, 5, 6);    // Jun 6 local time (day before exams start)
         const today = new Date();
 
         const total = end - start;
