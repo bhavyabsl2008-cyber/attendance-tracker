@@ -24,11 +24,13 @@ const Calculator = {
     safeSkips(attended, delivered, threshold = 75) {
         const currentPct = this.percentage(attended, delivered);
         
-        // If already below threshold, can't safely skip any more
-        if (currentPct < threshold) return 0;
+        // If at or below threshold, can't safely skip any more
+        if (currentPct <= threshold) return 0;
+
+        // If in warning zone (within 5% of threshold), show 0 — too risky
+        if (currentPct < threshold + 5) return 0;
         
         // Formula: solve (attended) / (delivered + x) = threshold/100
-        // x = attended * (100/threshold - 1)
         const t = threshold / 100;
         const maxSkips = Math.floor(attended * ((1 - t) / t));
         return Math.max(0, maxSkips);
