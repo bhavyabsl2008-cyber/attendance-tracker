@@ -23,6 +23,10 @@ const SUBJECTS = {
     MCP:      'Modern & Computational Physics',
     DECA:     'DECA',
     EXPLORE:  'Explore Hours',
+    OOP:      'Object Oriented Programming',
+    CN:       'Computer Networks',
+    DBMS:     'Database Management Systems',
+    FEEII:    'Front End Engineering-II',
 };
 
 // Each entry: { subject, slots: [1,2,...], group: null | 'A' | 'B', isLab: bool }
@@ -201,71 +205,59 @@ const TIMETABLES = {
         ],
     },
 
+    // Second-year timetable, w.e.f. 30 June 2026 (per official Chitkara mentor email)
     G6: {
         Monday:    [
-            { subject: 'MCP',  slots: [1],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [2],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [4],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DET',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',  slots: [1],   isLab: false },
+            { subject: 'CN',   slots: [4],   isLab: false },
+            { subject: 'DBMS', slots: [6],   isLab: false },
         ],
         Tuesday:   [
-            { subject: 'CP',   slots: [1],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [3,4], isLab: true,  group: 'B'  },
-            { subject: 'FEE',  slots: [6],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1],  isLab: false },
+            { subject: 'CN',    slots: [3],  isLab: false },
+            { subject: 'FEEII', slots: [6],  isLab: false },
         ],
         Wednesday: [
-            { subject: 'FEE',  slots: [1,2], isLab: true,  group: null },
-            { subject: 'MCP',  slots: [3,4], isLab: true,  group: 'A'  },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DET',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1],  isLab: false },
+            { subject: 'FEEII', slots: [6],  isLab: false },
         ],
         Thursday:  [
-            { subject: 'OSLF', slots: [1,2], isLab: true,  group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'DET',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',  slots: [1],   isLab: false },
+            { subject: 'CN',   slots: [3],   isLab: false },
+            { subject: 'DBMS', slots: [6],   isLab: false },
         ],
         Friday:    [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1],  isLab: false },
+            { subject: 'FEEII', slots: [6],  isLab: false },
         ],
     },
 
+    // Second-year timetable, from aSc-generated CSE 3 G7 sheet (generated 29-06-2026)
+    // isLab is inferred from 2-hour contiguous blocks — the source sheet doesn't
+    // explicitly mark labs, so this is a best guess, not confirmed.
     G7: {
         Monday:    [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [3,4], isLab: true,  group: 'B'  },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'FEE',  slots: [7],   isLab: false, group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true },
+            { subject: 'DBMS',  slots: [3,4], isLab: true },
+            { subject: 'OOP',   slots: [6,7], isLab: true },
         ],
         Tuesday:   [
-            { subject: 'CP',   slots: [1,2], isLab: true,  group: null },
-            { subject: 'FEE',  slots: [3],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [6],   isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true },
+            { subject: 'DBMS',  slots: [3,4], isLab: true },
+            { subject: 'OOP',   slots: [6,7], isLab: true },
         ],
         Wednesday: [
-            { subject: 'DET',  slots: [1],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'MCP',  slots: [7],   isLab: false, group: null },
+            { subject: 'CN',   slots: [3,4], isLab: true },
+            { subject: 'OOP',  slots: [6,7], isLab: true },
         ],
         Thursday:  [
-            { subject: 'CP',   slots: [1,2], isLab: true,  group: null },
-            { subject: 'MCP',  slots: [3],   isLab: false, group: null },
-            { subject: 'DET',  slots: [4],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [6,7], isLab: true,  group: 'A'  },
+            { subject: 'FEEII', slots: [1,2], isLab: true },
+            { subject: 'CN',    slots: [4],   isLab: false },
+            { subject: 'OOP',   slots: [6,7], isLab: true },
         ],
         Friday:    [
-            { subject: 'DET',  slots: [1],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
+            { subject: 'CN',   slots: [3],   isLab: false },
+            { subject: 'OOP',  slots: [6,7], isLab: true },
         ],
     },
 
@@ -341,7 +333,7 @@ const TIMETABLES = {
 const STORAGE_KEY_TIMETABLE = 'att_tracker_timetable_v1';
 
 const Timetable = {
-    _config: null, // { batch, group, customOverrides }
+    _config: null, // { batch, customOverrides }
 
     load() {
         try {
@@ -362,12 +354,10 @@ const Timetable = {
         return this._config !== null && this._config.batch !== null;
     },
 
-    setup(batch, group) {
-        // group: 'A' or 'B'
+    setup(batch) {
         // start with hardcoded data, no overrides
         this._config = {
             batch,
-            group,
             customOverrides: {} // { 'Monday': [...entries] } — replaces that day
         };
         this.save();
@@ -379,7 +369,6 @@ const Timetable = {
     },
 
     getBatch() { return this._config?.batch || null; },
-    getGroup() { return this._config?.group || null; },
 
     // Get schedule for a specific day, filtered by group
     // Returns array of { subject, slots, isLab, attendanceCount }
@@ -393,16 +382,8 @@ const Timetable = {
             ? overrides[day]
             : (TIMETABLES[this._config.batch]?.[day] || []);
 
-        const group = this._config.group; // 'A' or 'B'
-
         return entries
-            .filter(e => {
-                // Skip explore hours
-                if (e.subject === 'EXPLORE') return false;
-                // Skip if this entry is for the OTHER group only
-                if (e.group !== null && e.group !== group) return false;
-                return true;
-            })
+            .filter(e => e.subject !== 'EXPLORE') // Skip explore hours
             .map(e => ({
                 subject: e.subject,
                 subjectFull: SUBJECTS[e.subject] || e.subject,
@@ -410,7 +391,6 @@ const Timetable = {
                 isLab: e.isLab,
                 // attendanceCount = number of slots (lab = 2 attendance)
                 attendanceCount: e.slots.length,
-                group: e.group,
             }));
     },
 

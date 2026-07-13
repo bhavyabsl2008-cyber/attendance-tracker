@@ -24,18 +24,6 @@ const TimetableUI = {
                     `).join('')}
                 </div>
 
-                <div class="tt-section-label" style="margin-top:20px">Your Lab Group</div>
-                <div class="tt-group-row">
-                    <button class="tt-group-btn" data-group="A">
-                        <span class="tt-group-label">Group A</span>
-                        <span class="tt-group-sub">Lower roll numbers</span>
-                    </button>
-                    <button class="tt-group-btn" data-group="B">
-                        <span class="tt-group-label">Group B</span>
-                        <span class="tt-group-sub">Higher roll numbers</span>
-                    </button>
-                </div>
-
                 <div class="tt-selection-preview" id="tt-preview" style="display:none">
                     <span id="tt-preview-text"></span>
                 </div>
@@ -49,7 +37,7 @@ const TimetableUI = {
         document.body.appendChild(modal);
         requestAnimationFrame(() => modal.classList.add('tt-modal-show'));
 
-        this._setupState = { batch: null, group: null, onComplete };
+        this._setupState = { batch: null, onComplete };
 
         // Batch selection
         modal.querySelectorAll('.tt-batch-btn').forEach(btn => {
@@ -60,27 +48,17 @@ const TimetableUI = {
                 this._updateSetupPreview();
             });
         });
-
-        // Group selection
-        modal.querySelectorAll('.tt-group-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                modal.querySelectorAll('.tt-group-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this._setupState.group = btn.dataset.group;
-                this._updateSetupPreview();
-            });
-        });
     },
 
     _updateSetupPreview() {
-        const { batch, group } = this._setupState;
+        const { batch } = this._setupState;
         const preview = document.getElementById('tt-preview');
         const previewText = document.getElementById('tt-preview-text');
         const confirmBtn = document.getElementById('tt-confirm-btn');
 
-        if (batch && group) {
+        if (batch) {
             preview.style.display = 'block';
-            previewText.textContent = `${batch} · Group ${group}`;
+            previewText.textContent = batch;
             confirmBtn.disabled = false;
         } else {
             preview.style.display = 'none';
@@ -89,10 +67,10 @@ const TimetableUI = {
     },
 
     _confirmSetup() {
-        const { batch, group, onComplete } = this._setupState;
-        if (!batch || !group) return;
+        const { batch, onComplete } = this._setupState;
+        if (!batch) return;
 
-        Timetable.setup(batch, group);
+        Timetable.setup(batch);
         this._closeModal('tt-modal');
         if (onComplete) onComplete();
     },
@@ -103,7 +81,6 @@ const TimetableUI = {
 
         const week = Timetable.getWeek();
         const batch = Timetable.getBatch();
-        const group = Timetable.getGroup();
 
         const modal = document.createElement('div');
         modal.id = 'tt-week-modal';
@@ -113,7 +90,7 @@ const TimetableUI = {
                 <div class="tt-modal-header">
                     <div>
                         <div class="tt-modal-title">Your Timetable</div>
-                        <div class="tt-modal-sub">${batch} · Group ${group}</div>
+                        <div class="tt-modal-sub">${batch}</div>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center">
                         <button class="tt-change-btn" onclick="TimetableUI._changeBatch()">Change Batch</button>
@@ -137,7 +114,6 @@ const TimetableUI = {
 
                 <div class="tt-week-footer">
                     <span class="tt-legend-item"><span class="tt-dot tt-dot-lab"></span>Lab (2 attendance)</span>
-                    <span class="tt-legend-item"><span class="tt-dot tt-dot-group"></span>Group specific</span>
                 </div>
             </div>
         `;
@@ -156,10 +132,9 @@ const TimetableUI = {
             return '<div class="tt-slot-empty">Free</div>';
         }
         return entries.map(e => `
-            <div class="tt-slot ${e.isLab ? 'tt-slot-lab' : ''} ${e.group ? 'tt-slot-group' : ''}">
+            <div class="tt-slot ${e.isLab ? 'tt-slot-lab' : ''}">
                 <span class="tt-slot-subject">${e.subject}</span>
                 ${e.isLab ? '<span class="tt-slot-tag">Lab</span>' : ''}
-                ${e.group ? `<span class="tt-slot-tag tt-slot-tag-group">Grp ${e.group}</span>` : ''}
                 <span class="tt-slot-count">×${e.attendanceCount}</span>
             </div>
         `).join('');
@@ -232,11 +207,6 @@ const TimetableUI = {
                     <option value="1" ${entry.attendanceCount === 1 ? 'selected' : ''}>×1 class</option>
                     <option value="2" ${entry.attendanceCount === 2 ? 'selected' : ''}>×2 classes (Lab)</option>
                 </select>
-                <select class="tt-select tt-select-group">
-                    <option value="" ${!entry.group ? 'selected' : ''}>Everyone</option>
-                    <option value="A" ${entry.group === 'A' ? 'selected' : ''}>Group A only</option>
-                    <option value="B" ${entry.group === 'B' ? 'selected' : ''}>Group B only</option>
-                </select>
                 <button class="tt-remove-entry-btn" onclick="TimetableUI._removeEntryRow(this)">✕</button>
             </div>
         `;
@@ -249,7 +219,7 @@ const TimetableUI = {
 
         const subjectCodes = Timetable.getSubjectCodes();
         const index = container.querySelectorAll('.tt-entry-row').length;
-        const defaultEntry = { subject: 'CP', attendanceCount: 1, group: null };
+        const defaultEntry = { subject: 'CP', attendanceCount: 1 };
 
         const div = document.createElement('div');
         div.innerHTML = this._renderEntryRow(defaultEntry, index, subjectCodes);
@@ -272,11 +242,10 @@ const TimetableUI = {
         rows.forEach(row => {
             const subject = row.querySelector('.tt-select-subject').value;
             const count = parseInt(row.querySelector('.tt-select-count').value);
-            const group = row.querySelector('.tt-select-group').value || null;
             const isLab = count === 2;
             // Build fake slots array (just length matters for logic)
             const slots = count === 2 ? [1, 2] : [1];
-            entries.push({ subject, slots, isLab, group });
+            entries.push({ subject, slots, isLab });
         });
 
         Timetable.overrideDay(day, entries);

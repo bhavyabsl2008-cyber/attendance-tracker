@@ -257,7 +257,7 @@ const App = {
             TimetableUI.showSetup(() => {
                 this.render();
                 this._updateOnboardingState();
-                UI.toast(`Timetable loaded — ${Timetable.getBatch()} · Group ${Timetable.getGroup()}`, 'success');
+                UI.toast(`Timetable loaded — ${Timetable.getBatch()}`, 'success');
             });
         }
     },
@@ -274,7 +274,7 @@ const App = {
             ttCard.innerHTML = `
                 <div class="onboard-done-check">✓</div>
                 <div class="onboard-title">Timetable Set</div>
-                <div class="onboard-sub">${Timetable.getBatch()} · Group ${Timetable.getGroup()} · <button class="onboard-change-link" onclick="App.openTimetable()">View / Change</button></div>
+                <div class="onboard-sub">${Timetable.getBatch()} · <button class="onboard-change-link" onclick="App.openTimetable()">View / Change</button></div>
             `;
             const subjectsCard = document.getElementById('onboard-subjects');
             if (subjectsCard) {

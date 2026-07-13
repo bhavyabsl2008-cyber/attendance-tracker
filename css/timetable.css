@@ -121,47 +121,6 @@
     color: white;
 }
 
-/* ── GROUP SELECTION ── */
-.tt-group-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.tt-group-btn {
-    padding: 14px 16px;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: left;
-}
-
-.tt-group-btn:hover { border-color: var(--blue); }
-
-.tt-group-btn.active {
-    background: var(--blue-light);
-    border-color: var(--blue);
-}
-
-.tt-group-label {
-    display: block;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 3px;
-}
-
-.tt-group-sub {
-    display: block;
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--font-mono);
-}
-
-.tt-group-btn.active .tt-group-label { color: var(--blue); }
-
 /* ── PREVIEW + CONFIRM ── */
 .tt-selection-preview {
     background: var(--safe-bg);
@@ -260,7 +219,6 @@
 }
 
 .tt-slot-lab { border-left-color: var(--warning); }
-.tt-slot-group { border-left-color: var(--safe); }
 
 .tt-slot-subject {
     font-size: 11px;
@@ -278,11 +236,6 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     font-family: var(--font-mono);
-}
-
-.tt-slot-tag-group {
-    background: var(--safe-bg);
-    color: var(--safe);
 }
 
 .tt-slot-count {
@@ -324,7 +277,6 @@
 }
 
 .tt-dot-lab { background: var(--warning); }
-.tt-dot-group { background: var(--safe); }
 
 /* ── DAY EDITOR ── */
 .tt-entry-row {
