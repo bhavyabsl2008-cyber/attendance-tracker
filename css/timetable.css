@@ -431,33 +431,21 @@
     margin-bottom: 8px;
 }
 
-.tt-day-pills {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.tt-day-pill {
-    padding: 6px 12px;
+.tt-date-input {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
     background: var(--bg);
     border: 1.5px solid var(--border);
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
+    border-radius: 8px;
+    font-size: 13px;
     font-family: var(--font-mono);
     color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
 }
 
-.tt-day-pill:hover { border-color: var(--blue); color: var(--blue); }
-
-.tt-day-pill.active {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-}
+.tt-date-input:focus { border-color: var(--blue); outline: none; }
 
 .tt-dl-breakdown {
     background: var(--card);

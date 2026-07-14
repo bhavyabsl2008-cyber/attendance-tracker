@@ -14,6 +14,18 @@ const SLOTS = [
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+// Sem 3 holidays (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
+// Each entry is a single date or an inclusive range where no classes are held.
+const HOLIDAYS = [
+    { start: '2026-08-15', end: '2026-08-15', name: 'Independence Day' },
+    { start: '2026-09-04', end: '2026-09-04', name: 'Krishna Janmashtami' },
+    { start: '2026-10-02', end: '2026-10-02', name: "Mahatma Gandhi's Birthday" },
+    { start: '2026-10-19', end: '2026-10-20', name: 'Dussehra Holidays' },
+    { start: '2026-11-07', end: '2026-11-11', name: 'Diwali Break' },
+    { start: '2026-11-24', end: '2026-11-24', name: 'Guru Nanak Dev Ji Birthday' },
+    { start: '2026-12-25', end: '2026-12-25', name: 'Christmas' },
+];
+
 // Subject full names
 const SUBJECTS = {
     CP:       'C Programming',
@@ -470,8 +482,20 @@ const Timetable = {
         return result;
     },
 
+    // Given a 'YYYY-MM-DD' date string, returns the matching holiday { name } or null
+    isHoliday(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        for (const h of HOLIDAYS) {
+            const start = new Date(h.start + 'T00:00:00');
+            const end = new Date(h.end + 'T00:00:00');
+            if (d >= start && d <= end) return { name: h.name };
+        }
+        return null;
+    },
+
     DAYS,
     SLOTS,
     SUBJECTS,
     TIMETABLES,
+    HOLIDAYS,
 };

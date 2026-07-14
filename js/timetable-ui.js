@@ -273,59 +273,73 @@ const TimetableUI = {
     // Called from the leave simulator on a subject card
     // Returns HTML for the Full Day DL section when timetable is set up
     buildDLDayPicker(subjectId) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
         return `
             <div class="tt-dl-picker">
-                <label class="tt-dl-label">Which day?</label>
-                <div class="tt-day-pills" id="tt-day-pills-${subjectId}">
-                    ${Timetable.DAYS.slice(0, 5).map(day => `
-                        <button class="tt-day-pill"
-                            data-day="${day}"
-                            onclick="TimetableUI.selectDLDay('${subjectId}', '${day}', this)">
-                            ${day.substring(0,3)}
-                        </button>
-                    `).join('')}
-                </div>
+                <label class="tt-dl-label">Which date?</label>
+                <input type="date" class="tt-date-input" id="tt-dl-date-${subjectId}"
+                    value="${yyyy}-${mm}-${dd}"
+                    onchange="TimetableUI.selectDLDate('${subjectId}', this.value)">
                 <div class="tt-dl-breakdown" id="tt-dl-breakdown-${subjectId}">
-                    <span class="tt-dl-hint">Select a day to see impact</span>
+                    <span class="tt-dl-hint">Select a date to see impact</span>
                 </div>
             </div>
         `;
     },
 
-    selectDLDay(subjectId, day, btn) {
-        // Highlight selected day
-        btn.closest('.tt-day-pills').querySelectorAll('.tt-day-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    selectDLDate(subjectId, dateStr) {
+        if (!dateStr) return;
 
         const breakdown = document.getElementById(`tt-dl-breakdown-${subjectId}`);
+        const resultDiv = document.getElementById(`leave-result-${subjectId}`);
+
+        // Holiday check first — no classes at all that day, regardless of weekday
+        const holiday = Timetable.isHoliday(dateStr);
+        if (holiday) {
+            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">${holiday.name} — no classes held</span>`;
+            if (resultDiv) resultDiv.innerHTML = `${holiday.name} — no classes held, no attendance impact.`;
+            return;
+        }
+
+        // Map the date to a weekday name our timetable understands
+        const jsDay = new Date(dateStr + 'T00:00:00').getDay(); // 0 = Sunday
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const day = dayNames[jsDay];
+
+        if (day === 'Sunday' || day === 'Saturday') {
+            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">No classes on ${day}</span>`;
+            if (resultDiv) resultDiv.innerHTML = `No classes on ${day} — no attendance impact.`;
+            return;
+        }
+
         const impact = Timetable.getDLImpact(day, App.subjects);
 
         if (impact.length === 0) {
-            breakdown.innerHTML = `<span class="tt-dl-hint">No classes on ${day}</span>`;
-            // Update leave result
-            const resultDiv = document.getElementById(`leave-result-${subjectId}`);
+            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">No classes on ${day}</span>`;
             if (resultDiv) resultDiv.innerHTML = `No classes on ${day} — no attendance impact.`;
             return;
         }
 
         // Show breakdown of all subjects affected
-        breakdown.innerHTML = impact.map(item => `
-            <div class="tt-impact-row ${item.matched ? '' : 'tt-impact-unmatched'}">
-                <span class="tt-impact-subject">${item.subjectName}</span>
-                <span class="tt-impact-count">+${item.attendanceCount} class${item.attendanceCount > 1 ? 'es' : ''}</span>
-            </div>
-        `).join('');
+        if (breakdown) {
+            breakdown.innerHTML = impact.map(item => `
+                <div class="tt-impact-row ${item.matched ? '' : 'tt-impact-unmatched'}">
+                    <span class="tt-impact-subject">${item.subjectName}</span>
+                    <span class="tt-impact-count">+${item.attendanceCount} class${item.attendanceCount > 1 ? 'es' : ''}</span>
+                </div>
+            `).join('');
+        }
 
         // Update leave result for THIS subject card
         const subject = App.subjects.find(s => s.id === subjectId);
-        if (!subject) return;
+        if (!subject || !resultDiv) return;
 
         // Find how many classes this specific subject has on that day
         const subjectCode = impact.find(i => i.subjectId === subjectId);
         const classesForThisSubject = subjectCode?.attendanceCount || 0;
-
-        const resultDiv = document.getElementById(`leave-result-${subjectId}`);
-        if (!resultDiv) return;
 
         if (classesForThisSubject === 0) {
             resultDiv.innerHTML = `No <strong>${subject.name}</strong> on ${day} — no impact for this subject.`;

@@ -128,9 +128,10 @@ const Calculator = {
 
     // Semester progress
     semesterProgress() {
-        // Jan 20 to Jun 6 2026 — exams start Jun 7 (140 days, ~84 classes at 0.6 per day)
-        const start = new Date(2026, 0, 20);  // Jan 20 local time
-        const end = new Date(2026, 5, 6);    // Jun 6 local time (day before exams start)
+        // Sem 3 academic schedule (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
+        // Classes commence 30 Jun 2026, last teaching day 22 Dec 2026 (end-term exams after)
+        const start = new Date(2026, 5, 30);  // Jun 30 local time
+        const end = new Date(2026, 11, 22);   // Dec 22 local time (last teaching day)
         const today = new Date();
 
         const total = end - start;
