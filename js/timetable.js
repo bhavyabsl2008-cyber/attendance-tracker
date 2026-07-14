@@ -12,6 +12,19 @@ const SLOTS = [
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+// Sem 3 academic calendar (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
+// Single source of truth for semester boundaries — Calculator.semesterProgress()
+// reads this instead of keeping its own copy.
+const SEMESTER = {
+    start: '2026-06-30',  // Commencement of 3rd Semester Classes
+    end: '2026-12-22',    // Last Teaching Day (end-term exams follow)
+};
+
+// Known exceptions where classes run on what would normally be a non-teaching day.
+// The notice doesn't specify which day's timetable a working Saturday follows,
+// so these are NOT counted toward remaining-class totals — see getRemainingClassesForSubject.
+const WORKING_SATURDAYS = ['2026-11-14'];
+
 // Sem 3 holidays (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
 // Each entry is a single date or an inclusive range where no classes are held.
 const HOLIDAYS = [
@@ -440,6 +453,25 @@ const Timetable = {
         return week;
     },
 
+    // Read-only preview of ANY batch's week — does not touch personal _config,
+    // so students can look up another batch (e.g. G7) without it affecting their own setup.
+    previewWeek(batchCode) {
+        const week = {};
+        DAYS.slice(0, 5).forEach(day => {
+            const entries = TIMETABLES[batchCode]?.[day] || [];
+            week[day] = entries
+                .filter(e => e.subject !== 'EXPLORE')
+                .map(e => ({
+                    subject: e.subject,
+                    subjectFull: SUBJECTS[e.subject] || e.subject,
+                    slots: e.slots,
+                    isLab: e.isLab,
+                    attendanceCount: e.slots.length,
+                }));
+        });
+        return week;
+    },
+
     getBatchList() {
         return Object.keys(TIMETABLES); // G1-G9
     },
@@ -491,9 +523,73 @@ const Timetable = {
         return null;
     },
 
+    // Real calendar walk from today to semester end, counting how many times
+    // THIS specific subject actually meets — excludes weekends and holidays.
+    // Returns null if no timetable is set up (caller should fall back to a heuristic).
+    // Note: WORKING_SATURDAYS are deliberately NOT counted (see comment above) — this
+    // makes the result a slight undercount on rare compensatory teaching days.
+    getRemainingClassesForSubject(subjectCode) {
+        if (!this._config) return null;
+
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const end = new Date(SEMESTER.end + 'T00:00:00');
+        const cursor = new Date();
+        cursor.setHours(0, 0, 0, 0);
+
+        if (cursor > end) return 0;
+
+        let count = 0;
+        while (cursor <= end) {
+            const yyyy = cursor.getFullYear();
+            const mm = String(cursor.getMonth() + 1).padStart(2, '0');
+            const dd = String(cursor.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            const dayName = dayNames[cursor.getDay()];
+
+            const isWeekend = dayName === 'Sunday' || dayName === 'Saturday';
+            if (!isWeekend && !this.isHoliday(dateStr)) {
+                const entries = this.getDay(dayName);
+                entries.forEach(e => {
+                    if (e.subject === subjectCode) count += e.attendanceCount;
+                });
+            }
+
+            cursor.setDate(cursor.getDate() + 1);
+        }
+
+        return count;
+    },
+
+    // Match an App subject's free-text name to a timetable subject code
+    // (same matching rule already used by getDLImpact, factored out for reuse)
+    _matchSubjectCode(appSubjectName) {
+        const lowerName = appSubjectName.toLowerCase();
+        for (const code of Object.keys(SUBJECTS)) {
+            if (code === 'EXPLORE') continue;
+            const fullName = SUBJECTS[code].toLowerCase();
+            if (lowerName.includes(fullName) || fullName.includes(lowerName) || lowerName.includes(code.toLowerCase())) {
+                return code;
+            }
+        }
+        return null;
+    },
+
+    // Convenience wrapper for the UI layer — takes an App subject's display name
+    // directly instead of requiring the caller to know the timetable subject code.
+    // Returns null if no timetable is set up OR the subject can't be matched,
+    // so the caller can fall back to the flat semesterProgress() heuristic.
+    getRemainingClassesForAppSubject(appSubjectName) {
+        if (!this._config) return null;
+        const code = this._matchSubjectCode(appSubjectName);
+        if (!code) return null;
+        return this.getRemainingClassesForSubject(code);
+    },
+
     DAYS,
     SLOTS,
     SUBJECTS,
     TIMETABLES,
     HOLIDAYS,
+    SEMESTER,
+    WORKING_SATURDAYS,
 };

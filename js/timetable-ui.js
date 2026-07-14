@@ -75,6 +75,64 @@ const TimetableUI = {
         if (onComplete) onComplete();
     },
 
+    // ── BROWSE OTHER BATCH (read-only, doesn't touch personal setup) ──
+    showBatchBrowser(initialBatch) {
+        document.getElementById('tt-browse-modal')?.remove();
+
+        const batchList = Timetable.getBatchList();
+        const batch = initialBatch && batchList.includes(initialBatch) ? initialBatch : batchList[0];
+
+        const modal = document.createElement('div');
+        modal.id = 'tt-browse-modal';
+        modal.className = 'tt-modal-overlay';
+        modal.innerHTML = `
+            <div class="tt-modal-box tt-modal-wide">
+                <div class="tt-modal-header">
+                    <div>
+                        <div class="tt-modal-title">Browse Timetables</div>
+                        <div class="tt-modal-sub">Read-only — doesn't change your own setup</div>
+                    </div>
+                    <button class="tt-close-btn" onclick="TimetableUI._closeModal('tt-browse-modal')">✕</button>
+                </div>
+
+                <select class="tt-select" id="tt-browse-batch-select" style="margin:12px 0"
+                    onchange="TimetableUI._renderBrowseBatch(this.value)">
+                    ${batchList.map(b => `<option value="${b}" ${b === batch ? 'selected' : ''}>${b}</option>`).join('')}
+                </select>
+
+                <div class="tt-week-grid" id="tt-browse-grid"></div>
+
+                <div class="tt-week-footer">
+                    <span class="tt-legend-item"><span class="tt-dot tt-dot-lab"></span>Lab (2 attendance)</span>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        requestAnimationFrame(() => modal.classList.add('tt-modal-show'));
+        this._renderBrowseBatch(batch);
+
+        modal.addEventListener('click', e => {
+            if (e.target === modal) this._closeModal('tt-browse-modal');
+        });
+    },
+
+    _renderBrowseBatch(batchCode) {
+        const grid = document.getElementById('tt-browse-grid');
+        if (!grid) return;
+        const week = Timetable.previewWeek(batchCode);
+        grid.innerHTML = Timetable.DAYS.slice(0, 5).map(day => `
+            <div class="tt-day-col">
+                <div class="tt-day-header">
+                    <span class="tt-day-name">${day.substring(0, 3)}</span>
+                </div>
+                <div class="tt-day-slots">
+                    ${this._renderDaySlots(week[day])}
+                </div>
+            </div>
+        `).join('');
+    },
+
     // ── WEEK VIEW MODAL ──
     showWeekView() {
         document.getElementById('tt-week-modal')?.remove();

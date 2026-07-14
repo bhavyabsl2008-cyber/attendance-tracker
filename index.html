@@ -120,6 +120,7 @@
             </div>
             <div class="toolbar-actions">
                 <button class="tt-toolbar-btn" onclick="App.openTimetable()">📅 Timetable</button>
+                <button class="toolbar-btn" onclick="TimetableUI.showBatchBrowser()">🔍 Browse Batches</button>
                 <button class="toolbar-btn" onclick="App.exportData()">Export</button>
                 <label class="toolbar-btn" for="import-input">Import
                     <input type="file" id="import-input" accept=".json" style="display:none">
@@ -142,6 +143,9 @@
                 <div class="onboard-sub">Tell us your batch. We'll auto-calculate your attendance impact for any DL or holiday — no manual counting.</div>
                 <button class="onboard-cta-btn" onclick="App.openTimetable()">
                     Set Up Timetable →
+                </button>
+                <button class="onboard-secondary-link" onclick="TimetableUI.showBatchBrowser()">
+                    Just want to look up a batch's timetable? Browse without setting up →
                 </button>
             </div>
 

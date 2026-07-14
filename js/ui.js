@@ -152,7 +152,11 @@ const UI = {
         const status = Calculator.status(pct, threshold);
         const skips = Calculator.safeSkips(subject.attended, subject.delivered, threshold);
         const needed = Calculator.classesNeeded(subject.attended, subject.delivered, threshold);
-        const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, remainingClasses);
+        // Prefer the real, per-subject weekday-aware count when a timetable is set up;
+        // fall back to the flat semester-wide heuristic otherwise.
+        const subjectRemaining = Timetable.getRemainingClassesForAppSubject(subject.name);
+        const effectiveRemaining = subjectRemaining !== null ? subjectRemaining : remainingClasses;
+        const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, effectiveRemaining);
         const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold);
 
         const statusLabels = { safe: 'Safe', warning: 'At Risk', danger: 'Danger', debar: 'Debar Risk' };

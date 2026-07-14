@@ -128,10 +128,10 @@ const Calculator = {
 
     // Semester progress
     semesterProgress() {
-        // Sem 3 academic schedule (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
-        // Classes commence 30 Jun 2026, last teaching day 22 Dec 2026 (end-term exams after)
-        const start = new Date(2026, 5, 30);  // Jun 30 local time
-        const end = new Date(2026, 11, 22);   // Dec 22 local time (last teaching day)
+        // Dates sourced from Timetable.SEMESTER — single source of truth,
+        // see js/timetable.js (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
+        const start = new Date(Timetable.SEMESTER.start + 'T00:00:00');
+        const end = new Date(Timetable.SEMESTER.end + 'T00:00:00');
         const today = new Date();
 
         const total = end - start;

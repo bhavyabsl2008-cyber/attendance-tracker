@@ -1359,6 +1359,20 @@ header {
 .onboard-cta-btn:hover { background: var(--blue-dark); }
 .onboard-cta-btn:active { transform: scale(0.98); }
 
+.onboard-secondary-link {
+    display: block;
+    margin: 10px auto 0;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: var(--font-body);
+}
+
+.onboard-secondary-link:hover { color: var(--blue); }
+
 .onboard-done-check {
     font-size: 22px;
     color: var(--safe);
