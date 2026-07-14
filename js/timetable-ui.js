@@ -128,16 +128,49 @@ const TimetableUI = {
     },
 
     _renderDaySlots(entries) {
-        if (!entries || entries.length === 0) {
-            return '<div class="tt-slot-empty">Free</div>';
-        }
-        return entries.map(e => `
-            <div class="tt-slot ${e.isLab ? 'tt-slot-lab' : ''}">
-                <span class="tt-slot-subject">${e.subject}</span>
-                ${e.isLab ? '<span class="tt-slot-tag">Lab</span>' : ''}
-                <span class="tt-slot-count">×${e.attendanceCount}</span>
-            </div>
-        `).join('');
+        if (!entries) entries = [];
+
+        // Map each occupied slot id to its entry, and track each entry's first slot
+        // so a multi-slot entry (e.g. a 2-hour block) only renders once.
+        const slotToEntry = {};
+        entries.forEach(e => {
+            e.slots.forEach(slotId => { slotToEntry[slotId] = e; });
+        });
+
+        const blocks = Timetable.SLOTS.map(slot => {
+            const entry = slotToEntry[slot.id];
+
+            // Only render an entry block on its first occupied slot
+            if (entry && entry.slots[0] === slot.id) {
+                return `
+                    <div class="tt-slot ${entry.isLab ? 'tt-slot-lab' : ''}">
+                        <span class="tt-slot-time">${slot.time}</span>
+                        <span class="tt-slot-subject">${entry.subject}</span>
+                        ${entry.isLab ? '<span class="tt-slot-tag">Lab</span>' : ''}
+                        <span class="tt-slot-count">×${entry.attendanceCount}</span>
+                    </div>
+                `;
+            }
+            if (entry) return ''; // continuation of a multi-slot entry, already rendered
+
+            if (slot.isBreak) {
+                return `
+                    <div class="tt-slot tt-slot-break">
+                        <span class="tt-slot-time">${slot.time}</span>
+                        <span class="tt-slot-subject">${slot.breakLabel}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="tt-slot tt-slot-free">
+                    <span class="tt-slot-time">${slot.time}</span>
+                    <span class="tt-slot-subject">Free Period</span>
+                </div>
+            `;
+        });
+
+        return blocks.join('');
     },
 
     _changeBatch() {
@@ -239,12 +272,18 @@ const TimetableUI = {
         const rows = document.querySelectorAll('#tt-day-entries .tt-entry-row');
         const entries = [];
 
+        // Assign each row the next free, non-break slot id(s) in order,
+        // so entries don't collide on slot 1 and disappear from the week view.
+        const availableSlotIds = Timetable.SLOTS.filter(s => !s.isBreak).map(s => s.id);
+        let cursor = 0;
+
         rows.forEach(row => {
             const subject = row.querySelector('.tt-select-subject').value;
             const count = parseInt(row.querySelector('.tt-select-count').value);
             const isLab = count === 2;
-            // Build fake slots array (just length matters for logic)
-            const slots = count === 2 ? [1, 2] : [1];
+            const needed = count === 2 ? 2 : 1;
+            const slots = availableSlotIds.slice(cursor, cursor + needed);
+            cursor += needed;
             entries.push({ subject, slots, isLab });
         });
 

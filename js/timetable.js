@@ -5,11 +5,9 @@ const SLOTS = [
     { id: 2, time: '10:00–11:00' },
     { id: 3, time: '11:00–12:00' },
     { id: 4, time: '12:00–1:00' },
-    // Break 1:00–1:30
-    { id: 5, time: '1:30–2:00' },
+    { id: 5, time: '1:00–2:00', isBreak: true, breakLabel: 'Lunch Break' },
     { id: 6, time: '2:00–3:00' },
     { id: 7, time: '3:00–4:00' },
-    { id: 8, time: '4:00–5:00' },  // slot 8 reserved if needed
 ];
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

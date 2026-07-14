@@ -220,11 +220,37 @@
 
 .tt-slot-lab { border-left-color: var(--warning); }
 
+.tt-slot-break {
+    border-left-color: var(--muted-light);
+    background: var(--bg);
+    opacity: 0.75;
+}
+
+.tt-slot-free {
+    border-left-color: var(--border);
+    background: transparent;
+    opacity: 0.55;
+}
+
+.tt-slot-time {
+    font-size: 9px;
+    color: var(--muted-light);
+    font-family: var(--font-mono);
+    width: 100%;
+    order: -1;
+}
+
 .tt-slot-subject {
     font-size: 11px;
     font-weight: 600;
     color: var(--text);
     font-family: var(--font-mono);
+}
+
+.tt-slot-break .tt-slot-subject,
+.tt-slot-free .tt-slot-subject {
+    font-weight: 500;
+    color: var(--muted);
 }
 
 .tt-slot-tag {
@@ -242,14 +268,6 @@
     font-size: 9px;
     color: var(--muted-light);
     margin-left: auto;
-    font-family: var(--font-mono);
-}
-
-.tt-slot-empty {
-    font-size: 11px;
-    color: var(--muted-light);
-    text-align: center;
-    padding: 12px 4px;
     font-family: var(--font-mono);
 }
 
