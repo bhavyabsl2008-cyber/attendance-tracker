@@ -48,6 +48,27 @@ const Calculator = {
         return Math.max(0, needed);
     },
 
+    // When BELOW threshold: of the classes actually remaining this semester,
+    // how many can they afford to miss and still reach `threshold` by the end
+    // (attending the rest)? Bounded by real remaining classes, not infinite future.
+    // Returns { canMiss, reachable, bestPossiblePct } — reachable=false means
+    // even attending every single remaining class won't hit threshold this term.
+    maxMissableToReachThreshold(attended, delivered, remainingClasses, threshold = 75) {
+        const t = threshold / 100;
+        const bestPossiblePct = this.percentage(attended + remainingClasses, delivered + remainingClasses);
+        const reachable = bestPossiblePct >= threshold;
+
+        if (remainingClasses <= 0) {
+            return { canMiss: 0, reachable: this.percentage(attended, delivered) >= threshold, bestPossiblePct: this.percentage(attended, delivered) };
+        }
+
+        // Solve for max m (missed) such that (attended + remainingClasses - m) / (delivered + remainingClasses) >= t
+        const maxMiss = Math.floor((attended + remainingClasses) - t * (delivered + remainingClasses));
+        const canMiss = Math.max(0, Math.min(maxMiss, remainingClasses));
+
+        return { canMiss, reachable, bestPossiblePct };
+    },
+
     // ── ACTIONS ──
 
     // Skip 1 class: attended stays same, delivered increases

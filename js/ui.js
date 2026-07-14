@@ -159,6 +159,13 @@ const UI = {
         const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, effectiveRemaining);
         const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold);
 
+        // When below threshold, "Can miss" becomes "of the classes left this semester,
+        // how many can I still afford to skip and recover" — bounded and reachability-checked,
+        // instead of the flat 0 it used to show.
+        const recovery = pct < threshold
+            ? Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold)
+            : null;
+
         const statusLabels = { safe: 'Safe', warning: 'At Risk', danger: 'Danger', debar: 'Debar Risk' };
         const worstColor = parseFloat(prediction.worstCase) < threshold ? '#e53935' : '#1D9E75';
         const bestColor = parseFloat(prediction.bestCase) < threshold ? '#e53935' : '#1D9E75';
@@ -243,8 +250,16 @@ const UI = {
             <!-- Stats -->
             <div class="card-stats">
                 <div class="stat">
-                    <span class="${skips > 5 ? 'safe' : skips > 0 ? 'warning' : 'danger'}-text">${skips}</span>
-                    <label>Can miss</label>
+                    ${recovery === null ? `
+                        <span class="${skips > 5 ? 'safe' : skips > 0 ? 'warning' : 'danger'}-text">${skips}</span>
+                        <label>Can miss</label>
+                    ` : recovery.reachable ? `
+                        <span class="${recovery.canMiss > 0 ? 'warning' : 'danger'}-text">${recovery.canMiss}</span>
+                        <label>Can still miss</label>
+                    ` : `
+                        <span class="debar-text">—</span>
+                        <label title="Even attending every remaining class only reaches ${recovery.bestPossiblePct}%">Not reachable</label>
+                    `}
                 </div>
                 <div class="stat">
                     <span class="${needed === 0 ? 'safe' : 'danger'}-text">${needed === 0 ? '✓' : needed}</span>
