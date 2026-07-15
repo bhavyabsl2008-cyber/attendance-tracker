@@ -406,6 +406,68 @@ header {
     background: rgba(255,255,255,0.1);
 }
 
+/* Account / Sign-in */
+.auth-area {
+    margin-left: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.signin-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.signin-btn:hover { background: rgba(255,255,255,0.2); }
+.signin-btn.hidden { display: none; }
+
+.account-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 4px 6px 4px 4px;
+}
+
+.account-chip.hidden { display: none; }
+
+.account-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+}
+
+#account-name {
+    font-size: 12px;
+    color: white;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.signout-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+}
+
+.signout-btn:hover { color: white; }
+
 .dark-mode-btn:active {
     transform: scale(0.95);
 }

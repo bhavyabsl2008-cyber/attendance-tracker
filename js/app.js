@@ -20,6 +20,32 @@ const App = {
         this.render();
         this._updateOnboardingState();
         this.bindEvents();
+        this._initAuth();
+    },
+
+    _initAuth() {
+        if (typeof Auth === 'undefined' || typeof firebase === 'undefined') return;
+        Auth.init();
+        Sync.init();
+        Auth.onChange(user => this._updateAccountUI(user));
+    },
+
+    _updateAccountUI(user) {
+        const signinBtn = document.getElementById('signin-btn');
+        const chip = document.getElementById('account-chip');
+        if (!signinBtn || !chip) return;
+
+        if (user) {
+            signinBtn.classList.add('hidden');
+            chip.classList.remove('hidden');
+            const avatar = document.getElementById('account-avatar');
+            const name = document.getElementById('account-name');
+            if (avatar) avatar.src = user.photoURL || '';
+            if (name) name.textContent = user.displayName || user.email || 'Signed in';
+        } else {
+            signinBtn.classList.remove('hidden');
+            chip.classList.add('hidden');
+        }
     },
 
     bindEvents() {
