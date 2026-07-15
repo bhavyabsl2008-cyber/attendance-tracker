@@ -8,12 +8,12 @@
 // Paste it in below, replacing the placeholder values.
 
 const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY_HERE",
-    authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-    projectId: "PASTE_YOUR_PROJECT_ID",
-    storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-    messagingSenderId: "PASTE_YOUR_SENDER_ID",
-    appId: "PASTE_YOUR_APP_ID",
+    apiKey: "AIzaSyBMy1WWp6KkpLuSmeX7cMqOXquWyjjYfio",
+    authDomain: "presynce.firebaseapp.com",
+    projectId: "presynce",
+    storageBucket: "presynce.firebasestorage.app",
+    messagingSenderId: "21613081457",
+    appId: "1:21613081457:web:679e35e6e0d97b1b093cd0",
 };
 
 firebase.initializeApp(firebaseConfig);
