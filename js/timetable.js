@@ -497,7 +497,8 @@ const Timetable = {
             const matched = appSubjects.find(s =>
                 s.name.toLowerCase().includes(fullName.toLowerCase()) ||
                 fullName.toLowerCase().includes(s.name.toLowerCase()) ||
-                s.name.toLowerCase().includes(code.toLowerCase())
+                s.name.toLowerCase().includes(code.toLowerCase()) ||
+                code.toLowerCase().includes(s.name.toLowerCase())
             );
             result.push({
                 code,
@@ -563,11 +564,39 @@ const Timetable = {
     // Match an App subject's free-text name to a timetable subject code
     // (same matching rule already used by getDLImpact, factored out for reuse)
     _matchSubjectCode(appSubjectName) {
+        if (!this._config) return null;
+        const batchData = TIMETABLES[this._config.batch];
+        if (!batchData) return null;
+
+        // Only match against codes that actually appear in THIS student's own batch —
+        // matching against the entire global SUBJECTS dict let "FEE" collide with the
+        // unrelated legacy first-year code 'FEE' instead of this batch's real 'FEEII'.
+        const codesInBatch = new Set();
+        Object.values(batchData).forEach(dayEntries => {
+            dayEntries.forEach(e => codesInBatch.add(e.subject));
+        });
+
         const lowerName = appSubjectName.toLowerCase();
-        for (const code of Object.keys(SUBJECTS)) {
-            if (code === 'EXPLORE') continue;
-            const fullName = SUBJECTS[code].toLowerCase();
-            if (lowerName.includes(fullName) || fullName.includes(lowerName) || lowerName.includes(code.toLowerCase())) {
+
+        // Exact code match first (e.g. typed "OOP" === code OOP)
+        for (const code of codesInBatch) {
+            if (lowerName === code.toLowerCase()) return code;
+        }
+        // Exact full-name match next
+        for (const code of codesInBatch) {
+            if (lowerName === (SUBJECTS[code] || '').toLowerCase()) return code;
+        }
+        // Fuzzy substring match last, still scoped to this batch's own codes only.
+        // Includes the reverse direction too (code contains typed name) — needed for
+        // cases like typed "FEE" matching the real code "FEEII".
+        for (const code of codesInBatch) {
+            const fullName = (SUBJECTS[code] || '').toLowerCase();
+            if (
+                lowerName.includes(fullName) ||
+                fullName.includes(lowerName) ||
+                lowerName.includes(code.toLowerCase()) ||
+                code.toLowerCase().includes(lowerName)
+            ) {
                 return code;
             }
         }

@@ -157,7 +157,7 @@ const UI = {
         const subjectRemaining = Timetable.getRemainingClassesForAppSubject(subject.name);
         const effectiveRemaining = subjectRemaining !== null ? subjectRemaining : remainingClasses;
         const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, effectiveRemaining);
-        const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold);
+        const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold, effectiveRemaining);
 
         // When below threshold, "Can miss" becomes "of the classes left this semester,
         // how many can I still afford to skip and recover" — bounded and reachability-checked,

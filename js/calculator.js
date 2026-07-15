@@ -10,13 +10,14 @@ const Calculator = {
         return parseFloat(((attended / delivered) * 100).toFixed(2));
     },
 
-    // Status based on Chitkara's thresholds
+    // Status based on the student's actual configured threshold, not a hardcoded 75%.
+    // Bands are relative to threshold — identical to the old hardcoded values when threshold=75.
     status(percentage, threshold = 75) {
-        if (percentage >= 90) return 'verysafe';    // 90%+ = Very Safe
-        if (percentage >= 80) return 'safe';        // 80-89% = Comfortable
-        if (percentage >= 75) return 'warning';     // 75-79% = Risk Zone
-        if (percentage >= 60) return 'danger';      // Below 75% = Detention Risk (but give some breathing room)
-        return 'debar';                              // Critical
+        if (percentage >= threshold + 15) return 'verysafe';
+        if (percentage >= threshold + 5) return 'safe';
+        if (percentage >= threshold) return 'warning';
+        if (percentage >= threshold - 15) return 'danger';
+        return 'debar';
     },
 
     // Safe skips: how many MORE classes can be held while staying at/above threshold
@@ -169,7 +170,10 @@ const Calculator = {
     },
 
     // Smart alert message based on current state
-    smartAlert(attended, delivered, threshold = 75) {
+    // remainingClasses is optional — when provided (student has a timetable set up),
+    // danger/debar messages check whether threshold is even mathematically reachable
+    // this semester, instead of just saying "attend N classes" with no reality check.
+    smartAlert(attended, delivered, threshold = 75, remainingClasses = null) {
         const pct = this.percentage(attended, delivered);
         const skips = this.safeSkips(attended, delivered, threshold);
         const needed = this.classesNeeded(attended, delivered, threshold);
@@ -181,6 +185,15 @@ const Calculator = {
 
         const attendResult = this.attendClass(attended, delivered);
         const attendImpact = attendResult.percentage - pct;
+
+        // Only meaningful below threshold, and only when we actually know how many
+        // classes are left — otherwise there's nothing to check reachability against.
+        let reachable = true;
+        let bestPossiblePct = null;
+        if (pct < threshold && remainingClasses !== null) {
+            bestPossiblePct = this.percentage(attended + remainingClasses, delivered + remainingClasses);
+            reachable = bestPossiblePct >= threshold;
+        }
 
         if (status === 'verysafe') {
             return {
@@ -195,20 +208,36 @@ const Calculator = {
             };
         }
         if (status === 'warning') {
+            // This band is >= threshold by definition, so "attend N to recover" never
+            // made sense here — there's nothing to recover from. Reframe as a margin warning.
             return {
                 type: 'warning',
-                message: `Risk zone — attend ${needed} consecutive class${needed !== 1 ? 'es' : ''} to recover to ${threshold}% (each attend gains ~${attendImpact.toFixed(2)}%)`,
+                message: `Right at the edge — one more miss could drop you below ${threshold}% (each skip costs ~${skipImpact.toFixed(2)}%)`,
             };
         }
         if (status === 'danger') {
+            if (remainingClasses !== null && !reachable) {
+                return {
+                    type: 'danger',
+                    message: `Not reachable this semester — even attending every remaining class only gets you to ${bestPossiblePct}%. Talk to your mentor about condonation.`,
+                };
+            }
             return {
                 type: 'danger',
-                message: `Critical — attend ${needed} classes immediately. Each skip costs ~${skipImpact.toFixed(2)}%, each attend gains ~${attendImpact.toFixed(2)}%`,
+                message: `Attend ${needed} consecutive class${needed !== 1 ? 'es' : ''} to recover to ${threshold}% (each attend gains ~${attendImpact.toFixed(2)}%)`,
+            };
+        }
+
+        // status === 'debar'
+        if (remainingClasses !== null && !reachable) {
+            return {
+                type: 'debar',
+                message: `Critical & not reachable this semester — even attending every remaining class only gets you to ${bestPossiblePct}%. Talk to your mentor immediately.`,
             };
         }
         return {
             type: 'debar',
-            message: `Detention risk — attend every remaining class. Need ${needed} classes to reach ${threshold}%`,
+            message: `Critical — attend every remaining class immediately. Need ${needed} classes to reach ${threshold}% (each skip costs ~${skipImpact.toFixed(2)}%)`,
         };
     },
 
