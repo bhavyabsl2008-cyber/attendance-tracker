@@ -229,29 +229,32 @@ const TIMETABLES = {
     },
 
     // Second-year timetable, w.e.f. 30 June 2026 (per official Chitkara mentor email)
+    // OOP/DBMS/FEEII are 2-period labs, CN is single-period lecture — confirmed by
+    // cross-checking against the clean G7 and G1 sheets, which show the identical
+    // lab/lecture pattern for these same subjects.
     G6: {
         Monday:    [
-            { subject: 'OOP',  slots: [1],   isLab: false },
+            { subject: 'OOP',  slots: [1,2], isLab: true  },
             { subject: 'CN',   slots: [4],   isLab: false },
-            { subject: 'DBMS', slots: [6],   isLab: false },
+            { subject: 'DBMS', slots: [6,7], isLab: true  },
         ],
         Tuesday:   [
-            { subject: 'OOP',   slots: [1],  isLab: false },
-            { subject: 'CN',    slots: [3],  isLab: false },
-            { subject: 'FEEII', slots: [6],  isLab: false },
+            { subject: 'OOP',   slots: [1,2], isLab: true  },
+            { subject: 'CN',    slots: [3],   isLab: false },
+            { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Wednesday: [
-            { subject: 'OOP',   slots: [1],  isLab: false },
-            { subject: 'FEEII', slots: [6],  isLab: false },
+            { subject: 'OOP',   slots: [1,2], isLab: true },
+            { subject: 'FEEII', slots: [6,7], isLab: true },
         ],
         Thursday:  [
-            { subject: 'OOP',  slots: [1],   isLab: false },
+            { subject: 'OOP',  slots: [1,2], isLab: true  },
             { subject: 'CN',   slots: [3],   isLab: false },
-            { subject: 'DBMS', slots: [6],   isLab: false },
+            { subject: 'DBMS', slots: [6,7], isLab: true  },
         ],
         Friday:    [
-            { subject: 'OOP',   slots: [1],  isLab: false },
-            { subject: 'FEEII', slots: [6],  isLab: false },
+            { subject: 'OOP',   slots: [1,2], isLab: true },
+            { subject: 'FEEII', slots: [6,7], isLab: true },
         ],
     },
 
