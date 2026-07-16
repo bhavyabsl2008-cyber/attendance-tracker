@@ -221,9 +221,15 @@
 .tt-slot-lab { border-left-color: var(--warning); }
 
 .tt-slot-break {
-    border-left-color: var(--muted-light);
-    background: var(--bg);
-    opacity: 0.75;
+    border-left-color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 12%, var(--card));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--warning) 45%, transparent);
+    animation: tt-break-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes tt-break-glow {
+    0%, 100% { box-shadow: 0 0 6px color-mix(in srgb, var(--warning) 35%, transparent); }
+    50% { box-shadow: 0 0 14px color-mix(in srgb, var(--warning) 65%, transparent); }
 }
 
 .tt-slot-free {
@@ -247,7 +253,11 @@
     font-family: var(--font-mono);
 }
 
-.tt-slot-break .tt-slot-subject,
+.tt-slot-break .tt-slot-subject {
+    font-weight: 700;
+    color: var(--warning);
+}
+
 .tt-slot-free .tt-slot-subject {
     font-weight: 500;
     color: var(--muted);

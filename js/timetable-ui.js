@@ -185,6 +185,18 @@ const TimetableUI = {
         });
     },
 
+    // For a multi-slot entry (e.g. a 2-period lab), returns the merged time range
+    // (start of the first slot to end of the last slot) instead of just the first
+    // slot's single-hour time — a lab from 9-10 and 10-11 should read "9:00–11:00".
+    _getTimeRange(slotIds) {
+        const first = Timetable.SLOTS.find(s => s.id === slotIds[0]);
+        const last = Timetable.SLOTS.find(s => s.id === slotIds[slotIds.length - 1]);
+        if (!first || !last) return '';
+        const startTime = first.time.split('–')[0];
+        const endTime = last.time.split('–')[1];
+        return `${startTime}–${endTime}`;
+    },
+
     _renderDaySlots(entries) {
         if (!entries) entries = [];
 
@@ -202,7 +214,7 @@ const TimetableUI = {
             if (entry && entry.slots[0] === slot.id) {
                 return `
                     <div class="tt-slot ${entry.isLab ? 'tt-slot-lab' : ''}">
-                        <span class="tt-slot-time">${slot.time}</span>
+                        <span class="tt-slot-time">${this._getTimeRange(entry.slots)}</span>
                         <span class="tt-slot-subject">${entry.subject}</span>
                         ${entry.isLab ? '<span class="tt-slot-tag">Lab</span>' : ''}
                         <span class="tt-slot-count">×${entry.attendanceCount}</span>
