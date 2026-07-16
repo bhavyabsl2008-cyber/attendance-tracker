@@ -164,4 +164,15 @@ const Sync = {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });
     },
+
+    // Permanently deletes this user's cloud data, then signs them out.
+    // Does NOT touch localStorage — that's a separate, local-only deletion
+    // (Clear All Data button), since this only controls what's in Firestore.
+    async deleteMyCloudData() {
+        if (!Auth.isSignedIn()) return;
+        const uid = Auth.currentUser.uid;
+        await this._db.collection('users').doc(uid).delete();
+        await Auth.signOut();
+        UI.toast('Your cloud data has been deleted', 'success');
+    },
 };

@@ -24,15 +24,16 @@ const MedicalLeave = {
                     <div class="ml-guide-section">
                         <div class="ml-guide-step-title">1. What you actually need</div>
                         <ul class="ml-guide-list">
+                            <li><strong>Minimum 5 working days</strong> of absence — per mentor guidance, this is when an ML application actually gets processed. This isn't written on the official form itself, so if you're close to the line, confirm with your own mentor.</li>
                             <li><strong>A medical certificate</strong> from the doctor you consulted — the form explicitly requires this to be attached.</li>
                             <li><strong>The signed application letter</strong> (generator below) — addressed to the Dean, CSE, routed through your Mentor.</li>
                         </ul>
                         <p class="ml-guide-caveat">
-                            ⚠️ I could not confirm a minimum-day eligibility rule or a requirement for
-                            separate admission/blood reports from the official form — it only asks for
-                            "the medical certificate." If your department has a stricter written policy
-                            (e.g. a minimum absence length), check with your mentor directly before
-                            assuming this list is complete.
+                            ⚠️ The 5-day rule above comes from direct mentor guidance, not the written form —
+                            policies can vary by mentor or change over time, so if your situation is borderline,
+                            confirm with your own mentor before assuming it applies. I also could not confirm
+                            a requirement for separate admission/blood reports — the form only asks for
+                            "the medical certificate."
                         </p>
                     </div>
 

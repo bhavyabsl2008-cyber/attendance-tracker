@@ -325,40 +325,6 @@ const TIMETABLES = {
             { subject: 'DET',  slots: [7],   isLab: false, group: null },
         ],
     },
-
-    G9: {
-        Monday:    [
-            { subject: 'OSLF', slots: [1,2], isLab: true,  group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'FEE',  slots: [7],   isLab: false, group: null },
-        ],
-        Tuesday:   [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'MCP',  slots: [7],   isLab: false, group: null },
-        ],
-        Wednesday: [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [2],   isLab: false, group: null },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'MCP',  slots: [7],   isLab: false, group: null },
-        ],
-        Thursday:  [
-            { subject: 'MCP',  slots: [1,2], isLab: true,  group: 'A'  },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'DET',  slots: [6],   isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
-        ],
-        Friday:    [
-            { subject: 'MCP',  slots: [1,2], isLab: true,  group: 'B'  },
-            { subject: 'DET',  slots: [4],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
-        ],
-    },
 };
 
 const STORAGE_KEY_TIMETABLE = 'att_tracker_timetable_v1';
