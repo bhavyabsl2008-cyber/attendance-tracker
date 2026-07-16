@@ -25,6 +25,16 @@ const SEMESTER = {
 // so these are NOT counted toward remaining-class totals — see getRemainingClassesForSubject.
 const WORKING_SATURDAYS = ['2026-11-14'];
 
+// Some subjects don't run the full semester — OOP ends mid-term and is replaced by
+// Programming in Java in the same slot (per the notice: OOP Course End 11 Sep 2026,
+// Programming in Java Course Start 23 Sep 2026). Remaining-class counts must stop at
+// the subject's own end date, not run to the full semester end. Subjects not listed
+// here are assumed to run the full semester (CN/DBMS/FEEII have no separate
+// start/end line items in the notice — only continuous ST-1/ST-2/PBE checkpoints).
+const SUBJECT_COURSE_END = {
+    OOP: '2026-09-11',
+};
+
 // Sem 3 holidays (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
 // Each entry is a single date or an inclusive range where no classes are held.
 const HOLIDAYS = [
@@ -531,7 +541,11 @@ const Timetable = {
         if (!this._config) return null;
 
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const end = new Date(SEMESTER.end + 'T00:00:00');
+        const semesterEnd = new Date(SEMESTER.end + 'T00:00:00');
+        // Some subjects (e.g. OOP) finish mid-semester — don't count classes past
+        // their own course-end date even though the semester itself runs longer.
+        const courseEndStr = SUBJECT_COURSE_END[subjectCode];
+        const end = courseEndStr ? new Date(courseEndStr + 'T00:00:00') : semesterEnd;
         const cursor = new Date();
         cursor.setHours(0, 0, 0, 0);
 
@@ -619,4 +633,5 @@ const Timetable = {
     HOLIDAYS,
     SEMESTER,
     WORKING_SATURDAYS,
+    SUBJECT_COURSE_END,
 };
