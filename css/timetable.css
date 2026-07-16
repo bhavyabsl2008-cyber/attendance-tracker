@@ -564,3 +564,67 @@
     .tt-week-grid { grid-template-columns: repeat(2, 1fr); }
     .tt-batch-grid { grid-template-columns: repeat(3, 1fr); }
 }
+/* Medical Leave Guide */
+.ml-guide-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ml-guide-section {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ml-guide-section:last-child { border-bottom: none; }
+
+.ml-guide-step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ml-guide-list {
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.ml-guide-caveat {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: color-mix(in srgb, var(--warning) 12%, var(--card));
+    border-left: 3px solid var(--warning);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.ml-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.ml-form-input {
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--font-mono);
+}
+
+.ml-form-input:focus { border-color: var(--blue); outline: none; }
+
+@media (max-width: 480px) {
+    .ml-form-grid { grid-template-columns: 1fr; }
+}

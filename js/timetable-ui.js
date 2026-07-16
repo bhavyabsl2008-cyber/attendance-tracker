@@ -468,6 +468,3 @@ const TimetableUI = {
         setTimeout(() => modal.remove(), 200);
     },
 };
-
-// Verify TimetableUI loaded
-console.log('✓ TimetableUI loaded', typeof TimetableUI);
