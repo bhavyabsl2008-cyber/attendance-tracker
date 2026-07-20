@@ -158,37 +158,30 @@ const TIMETABLES = {
         ],
     },
 
+    // Second-year timetable, from aSc-generated CSE 3 G4 sheet (generated 29-06-2026)
     G4: {
         Monday:    [
-            { subject: 'CP',   slots: [1,2], isLab: true,  group: null },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'OSLF', slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1,2], isLab: true  },
+            { subject: 'DISC',  slots: [4],   isLab: false },
+            { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Tuesday:   [
-            { subject: 'FEE',  slots: [1],   isLab: false, group: null },
-            { subject: 'DECA', slots: [2],   isLab: false, group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'DECA', slots: [6,7], isLab: true,  group: 'B'  },
+            { subject: 'OOP',   slots: [1,2], isLab: true  },
+            { subject: 'DISC',  slots: [3],   isLab: false },
+            { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Wednesday: [
-            { subject: 'CP',   slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'DECA', slots: [3,4], isLab: true,  group: 'A'  },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'OSLF', slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',  slots: [1,2], isLab: true },
+            { subject: 'DBMS', slots: [6,7], isLab: true },
         ],
         Thursday:  [
-            { subject: 'FEE',  slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'DECA', slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1,2], isLab: true },
+            { subject: 'FEEII', slots: [6,7], isLab: true },
         ],
         Friday:    [
-            { subject: 'DET',  slots: [1],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
+            { subject: 'DBMS', slots: [1,2], isLab: true  },
+            { subject: 'OOP',  slots: [3,4], isLab: true  },
+            { subject: 'DISC', slots: [6],   isLab: false },
         ],
     },
 
