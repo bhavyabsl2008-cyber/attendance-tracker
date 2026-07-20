@@ -285,37 +285,33 @@ const TIMETABLES = {
         ],
     },
 
+    // Second-year timetable, from Dean CSE-2nd yr email, w.e.f. 6 July 2026
+    // Wednesday CN's exact slot (2-3 vs 3-4) inferred by structural analogy to
+    // G7's identical CN-lab placement — doesn't affect attendance math either way,
+    // only cosmetic if someone browses G8's timetable specifically.
     G8: {
         Monday:    [
-            { subject: 'CP',   slots: [1,2], isLab: true,  group: null },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'MCP',  slots: [7],   isLab: false, group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true  },
+            { subject: 'CN',    slots: [4],   isLab: false },
+            { subject: 'OOP',   slots: [6,7], isLab: true  },
         ],
         Tuesday:   [
-            { subject: 'CP',   slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [4],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [6,7], isLab: true,  group: 'B'  },
+            { subject: 'DBMS',  slots: [1,2], isLab: true },
+            { subject: 'FEEII', slots: [3,4], isLab: true },
+            { subject: 'OOP',   slots: [6,7], isLab: true },
         ],
         Wednesday: [
-            { subject: 'CP',   slots: [1],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [3],   isLab: false, group: null },
-            { subject: 'DET',  slots: [4],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'FEE',  slots: [7],   isLab: false, group: null },
+            { subject: 'CN',  slots: [3,4], isLab: true },
+            { subject: 'OOP', slots: [6,7], isLab: true },
         ],
         Thursday:  [
-            { subject: 'DET',  slots: [1],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [2],   isLab: false, group: null },
-            { subject: 'MCP',  slots: [3,4], isLab: true,  group: 'A'  },
-            { subject: 'OSLF', slots: [6,7], isLab: true,  group: null },
+            { subject: 'DBMS', slots: [1,2], isLab: true },
+            { subject: 'OOP',  slots: [6,7], isLab: true },
         ],
         Friday:    [
-            { subject: 'MCP',  slots: [1],   isLab: false, group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DET',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',   slots: [1,2], isLab: true },
+            { subject: 'FEEII', slots: [3,4], isLab: true },
+            { subject: 'CN',    slots: [6],   isLab: false },
         ],
     },
 };
