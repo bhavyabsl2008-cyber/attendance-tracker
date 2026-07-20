@@ -171,11 +171,12 @@ const Calculator = {
 
     // Smart alert message based on current state
     // remainingClasses is optional — when provided (student has a timetable set up),
-    // danger/debar messages check whether threshold is even mathematically reachable
-    // this semester, instead of just saying "attend N classes" with no reality check.
+    // ALL messages (not just danger/debar) use the reachability-bounded "can still miss"
+    // count instead of the old unbounded safeSkips formula, which caused a jarring
+    // discontinuity right at the threshold line (e.g. "can miss 20" at 69%, then
+    // suddenly "can miss 0" at exactly 75% — two different models colliding).
     smartAlert(attended, delivered, threshold = 75, remainingClasses = null) {
         const pct = this.percentage(attended, delivered);
-        const skips = this.safeSkips(attended, delivered, threshold);
         const needed = this.classesNeeded(attended, delivered, threshold);
         const status = this.status(pct, threshold);
 
@@ -186,13 +187,18 @@ const Calculator = {
         const attendResult = this.attendClass(attended, delivered);
         const attendImpact = attendResult.percentage - pct;
 
-        // Only meaningful below threshold, and only when we actually know how many
-        // classes are left — otherwise there's nothing to check reachability against.
-        let reachable = true;
-        let bestPossiblePct = null;
-        if (pct < threshold && remainingClasses !== null) {
-            bestPossiblePct = this.percentage(attended + remainingClasses, delivered + remainingClasses);
-            reachable = bestPossiblePct >= threshold;
+        // Reachability-bounded miss count — the SAME formula used regardless of
+        // current status, so the number is continuous across the threshold line.
+        // Falls back to the old unbounded safeSkips only when we don't know how
+        // many classes are actually left (no timetable set up).
+        let skips, reachable = true, bestPossiblePct = null;
+        if (remainingClasses !== null) {
+            const recovery = this.maxMissableToReachThreshold(attended, delivered, remainingClasses, threshold);
+            skips = recovery.canMiss;
+            reachable = recovery.reachable;
+            bestPossiblePct = recovery.bestPossiblePct;
+        } else {
+            skips = this.safeSkips(attended, delivered, threshold);
         }
 
         if (status === 'verysafe') {
@@ -212,7 +218,9 @@ const Calculator = {
             // made sense here — there's nothing to recover from. Reframe as a margin warning.
             return {
                 type: 'warning',
-                message: `Right at the edge — one more miss could drop you below ${threshold}% (each skip costs ~${skipImpact.toFixed(2)}%)`,
+                message: skips > 0
+                    ? `Right at the edge — you can still miss ${skips} more this semester, but any miss right now cuts it close (each skip costs ~${skipImpact.toFixed(2)}%)`
+                    : `Right at the edge — one more miss could drop you below ${threshold}% (each skip costs ~${skipImpact.toFixed(2)}%)`,
             };
         }
         if (status === 'danger') {

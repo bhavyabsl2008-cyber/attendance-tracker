@@ -150,7 +150,6 @@ const UI = {
     buildCard(subject, threshold, remainingClasses) {
         const pct = Calculator.percentage(subject.attended, subject.delivered);
         const status = Calculator.status(pct, threshold);
-        const skips = Calculator.safeSkips(subject.attended, subject.delivered, threshold);
         const needed = Calculator.classesNeeded(subject.attended, subject.delivered, threshold);
         // Prefer the real, per-subject weekday-aware count when a timetable is set up;
         // fall back to the flat semester-wide heuristic otherwise.
@@ -159,12 +158,12 @@ const UI = {
         const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, effectiveRemaining);
         const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold, effectiveRemaining);
 
-        // When below threshold, "Can miss" becomes "of the classes left this semester,
-        // how many can I still afford to skip and recover" — bounded and reachability-checked,
-        // instead of the flat 0 it used to show.
-        const recovery = pct < threshold
-            ? Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold)
-            : null;
+        // "Can miss" always answers the same question regardless of current percentage:
+        // of the classes left this semester, how many can still be missed while still
+        // reaching threshold by semester end. Using one formula everywhere — above AND
+        // below threshold — instead of switching models at the 75% line, which used to
+        // cause a jarring discontinuity (69% showing "can miss 20", then 75% showing "0").
+        const recovery = Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold);
 
         const statusLabels = { safe: 'Safe', warning: 'At Risk', danger: 'Danger', debar: 'Debar Risk' };
         const worstColor = parseFloat(prediction.worstCase) < threshold ? '#e53935' : '#1D9E75';
@@ -250,11 +249,8 @@ const UI = {
             <!-- Stats -->
             <div class="card-stats">
                 <div class="stat">
-                    ${recovery === null ? `
-                        <span class="${skips > 5 ? 'safe' : skips > 0 ? 'warning' : 'danger'}-text">${skips}</span>
-                        <label>Can miss</label>
-                    ` : recovery.reachable ? `
-                        <span class="${recovery.canMiss > 0 ? 'warning' : 'danger'}-text">${recovery.canMiss}</span>
+                    ${recovery.reachable ? `
+                        <span class="${recovery.canMiss > 5 ? 'safe' : recovery.canMiss > 0 ? 'warning' : 'danger'}-text">${recovery.canMiss}</span>
                         <label>Can still miss</label>
                     ` : `
                         <span class="debar-text">—</span>
