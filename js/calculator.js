@@ -21,19 +21,20 @@ const Calculator = {
     },
 
     // Safe skips: how many MORE classes can be held while staying at/above threshold
-    // ONLY meaningful if currently at or above threshold
+    // ONLY meaningful if currently at or above threshold+5 (verysafe/safe bands)
     safeSkips(attended, delivered, threshold = 75) {
         const currentPct = this.percentage(attended, delivered);
-        
+
         // If at or below threshold, can't safely skip any more
         if (currentPct <= threshold) return 0;
 
         // If in warning zone (within 5% of threshold), show 0 — too risky
         if (currentPct < threshold + 5) return 0;
-        
-        // Formula: solve (attended) / (delivered + x) = threshold/100
+
+        // Solve for max x such that attended / (delivered + x) >= threshold/100:
+        // x <= attended/t - delivered
         const t = threshold / 100;
-        const maxSkips = Math.floor(attended * ((1 - t) / t));
+        const maxSkips = Math.floor(attended / t - delivered);
         return Math.max(0, maxSkips);
     },
 
