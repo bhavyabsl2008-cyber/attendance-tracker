@@ -256,6 +256,135 @@ const App = {
         );
     },
 
+    // "Didn't go today" — marks every period on today's timetable as missed
+    // (delivered +1 per period, attended unchanged). A lab counts as 2 missed
+    // classes because it's 2 slots. Does nothing if timetable isn't set up,
+    // today is a holiday, or today has no classes.
+    markDayAbsent() {
+        if (!Timetable.isSetup()) {
+            UI.toast('Set up your timetable first', 'error');
+            return;
+        }
+        const today = new Date();
+        const dayName = Timetable.DAYS[today.getDay() - 1]; // getDay(): 0=Sun
+        const dateStr = today.toISOString().slice(0, 10);
+
+        if (!dayName || today.getDay() === 0) {
+            UI.toast('No classes today', 'error');
+            return;
+        }
+        if (Timetable.isHoliday(dateStr)) {
+            UI.toast("Today's a holiday — nothing to mark", 'error');
+            return;
+        }
+
+        const counts = Timetable.getAttendanceCountForDay(dayName);
+        const codes = Object.keys(counts);
+        if (codes.length === 0) {
+            UI.toast('No classes scheduled today', 'error');
+            return;
+        }
+
+        const affected = [];
+        codes.forEach(code => {
+            const subject = this._findSubjectForCode(code);
+            if (subject) affected.push({ subject, count: counts[code] });
+        });
+
+        if (affected.length === 0) {
+            UI.toast("Today's subjects don't match any subject you've added", 'error');
+            return;
+        }
+
+        const preview = affected
+            .map(a => `${a.subject.name}: +${a.count} missed`)
+            .join('\n');
+
+        UI.confirm(
+            "Mark today absent?",
+            preview,
+            () => {
+                affected.forEach(a => {
+                    const idx = this.subjects.findIndex(s => s.id === a.subject.id);
+                    this.subjects[idx].delivered += a.count;
+                });
+                Storage.saveSubjects(this.subjects);
+                this.render();
+                UI.toast('Marked absent for today', 'warning');
+            }
+        );
+    },
+
+    // DL (duty leave) simulator, simple version: given a clock-time window,
+    // any period that overlaps it counts as ATTENDED (attended +1, delivered +1
+    // per overlapping slot) instead of missed. Kept separate from markDayAbsent
+    // so a partial-day DL doesn't touch periods outside the DL window.
+    applyDLForToday(startTimeStr, endTimeStr) {
+        if (!Timetable.isSetup()) {
+            UI.toast('Set up your timetable first', 'error');
+            return;
+        }
+        const today = new Date();
+        const dayName = Timetable.DAYS[today.getDay() - 1];
+        if (!dayName || today.getDay() === 0) {
+            UI.toast('No classes today', 'error');
+            return;
+        }
+
+        const [sh, sm] = startTimeStr.split(':').map(Number);
+        const [eh, em] = endTimeStr.split(':').map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = eh * 60 + em;
+        if (!(endMin > startMin)) {
+            UI.toast('DL end time must be after start time', 'error');
+            return;
+        }
+
+        const counts = Timetable.getPeriodsInTimeRange(dayName, startMin, endMin);
+        const codes = Object.keys(counts);
+        if (codes.length === 0) {
+            UI.toast('No class falls inside that DL window', 'error');
+            return;
+        }
+
+        const affected = [];
+        codes.forEach(code => {
+            const subject = this._findSubjectForCode(code);
+            if (subject) affected.push({ subject, count: counts[code] });
+        });
+
+        if (affected.length === 0) {
+            UI.toast("That period's subject isn't in your list", 'error');
+            return;
+        }
+
+        const preview = affected
+            .map(a => `${a.subject.name}: +${a.count} attended (via DL)`)
+            .join('\n');
+
+        UI.confirm(
+            'Apply DL for today?',
+            preview,
+            () => {
+                affected.forEach(a => {
+                    const idx = this.subjects.findIndex(s => s.id === a.subject.id);
+                    this.subjects[idx].attended += a.count;
+                    this.subjects[idx].delivered += a.count;
+                });
+                Storage.saveSubjects(this.subjects);
+                this.render();
+                UI.toast('DL applied for today', 'success');
+            }
+        );
+    },
+
+    // Shared helper: which App subject (by user-typed name) matches a
+    // timetable subject code, e.g. 'OOP' -> the subject the student named
+    // "Object Oriented Programming" or just "OOP".
+    _findSubjectForCode(code) {
+        return this.subjects.find(s => Timetable._matchSubjectCode(s.name) === code) || null;
+    },
+
     exportData() {
         Storage.saveSubjects(this.subjects);
         Storage.exportJSON();

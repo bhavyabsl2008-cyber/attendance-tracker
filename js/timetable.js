@@ -185,37 +185,31 @@ const TIMETABLES = {
         ],
     },
 
+    // Second-year timetable, w.e.f. 30 June 2026, from Dean CSE-2nd Year email to
+    // CSE Beta 3 G5 (Mentor: Dr. Mankirat Kaur). Replaces stale first-year data.
     G5: {
         Monday:    [
-            { subject: 'DECA', slots: [1,2], isLab: true,  group: 'A'  },
-            { subject: 'FEE',  slots: [3],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DECA', slots: [7],   isLab: false, group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true  },
+            { subject: 'CN',    slots: [4],   isLab: false },
+            { subject: 'OOP',   slots: [6,7], isLab: true  },
         ],
         Tuesday:   [
-            { subject: 'DET',  slots: [1],   isLab: false, group: null },
-            { subject: 'FEE',  slots: [2],   isLab: false, group: null },
-            { subject: 'DECA', slots: [3,4], isLab: true,  group: 'B'  },
-            { subject: 'OSLF', slots: [6,7], isLab: true,  group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true  },
+            { subject: 'CN',    slots: [3],   isLab: false },
+            { subject: 'OOP',   slots: [6,7], isLab: true  },
         ],
         Wednesday: [
-            { subject: 'CP',   slots: [1,2], isLab: true,  group: null },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DET',  slots: [7],   isLab: false, group: null },
+            { subject: 'DBMS', slots: [1,2], isLab: true },
+            { subject: 'OOP',  slots: [6,7], isLab: true },
         ],
         Thursday:  [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'CP',   slots: [4],   isLab: false, group: null },
-            { subject: 'CP',   slots: [6,7], isLab: true,  group: null },
+            { subject: 'FEEII', slots: [1,2], isLab: true },
+            { subject: 'OOP',   slots: [6,7], isLab: true },
         ],
         Friday:    [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'CP',   slots: [2],   isLab: false, group: null },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'DECA', slots: [7],   isLab: false, group: null },
+            { subject: 'CN',   slots: [1],   isLab: false },
+            { subject: 'DBMS', slots: [3,4], isLab: true  },
+            { subject: 'OOP',  slots: [6,7], isLab: true  },
         ],
     },
 
@@ -519,6 +513,40 @@ const Timetable = {
         }
 
         return count;
+    },
+
+    // Parse a SLOTS time label like "1:00" into minutes since midnight.
+    // Periods 1–4 are AM (9,10,11,12); periods 5–7 read as "1,2,3" but are PM,
+    // so any hour below 9 is treated as afternoon.
+    _parseClock(str) {
+        let [h, m] = str.split(':').map(Number);
+        if (h < 9) h += 12;
+        return h * 60 + m;
+    },
+
+    getSlotRange(slotId) {
+        const slot = SLOTS.find(s => s.id === slotId);
+        if (!slot) return null;
+        const [startStr, endStr] = slot.time.split('–');
+        return { start: this._parseClock(startStr), end: this._parseClock(endStr) };
+    },
+
+    // Which of today's scheduled periods overlap a DL clock-time window.
+    // startMin/endMin are minutes since midnight (e.g. 2:00pm = 840).
+    // Returns { subjectCode: overlappingPeriodCount }, same shape as
+    // getAttendanceCountForDay, so callers can reuse it the same way.
+    getPeriodsInTimeRange(day, startMin, endMin) {
+        const entries = this.getDay(day);
+        const counts = {};
+        entries.forEach(e => {
+            e.slots.forEach(slotId => {
+                const range = this.getSlotRange(slotId);
+                if (!range) return;
+                const overlaps = range.start < endMin && range.end > startMin;
+                if (overlaps) counts[e.subject] = (counts[e.subject] || 0) + 1;
+            });
+        });
+        return counts;
     },
 
     // Match an App subject's free-text name to a timetable subject code
