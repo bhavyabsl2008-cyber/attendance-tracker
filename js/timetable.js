@@ -97,37 +97,35 @@ const TIMETABLES = {
         ],
     },
 
+    // Second-year timetable, w.e.f. per clean CSE 3 G2 sheet (generated 17-07-2026).
+    // Printed period 1/2 times read 9:00-9:45 / 9:45-11:00 on the source sheet, but
+    // Bhavya confirmed (21 Jul 2026) actual periods run flat one hour like every
+    // other batch — mapped onto the standard SLOTS grid, not the printed times.
     G2: {
         Monday:    [
-            { subject: 'CP',   slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'OSLF', slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'FEE',  slots: [7],   isLab: false, group: null },
+            { subject: 'OOP',      slots: [1],   isLab: false },
+            { subject: 'DISC',     slots: [2],   isLab: false },
+            { subject: 'FEEII',    slots: [6,7], isLab: true  },
         ],
         Tuesday:   [
-            { subject: 'DECA', slots: [1,2], isLab: true,  group: 'B'  },
-            { subject: 'DET',  slots: [3],   isLab: false, group: null },
-            { subject: 'DECA', slots: [7],   isLab: false, group: null },
+            { subject: 'DBMS',  slots: [1],   isLab: false },
+            { subject: 'DISC',  slots: [2],   isLab: false },
+            { subject: 'OOP',   slots: [3,4], isLab: true  },
+            { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Wednesday: [
-            { subject: 'FEE',  slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'OSLF', slots: [7],   isLab: false, group: null },
+            { subject: 'DISC', slots: [2],   isLab: false },
+            { subject: 'OOP',  slots: [3,4], isLab: true  },
         ],
         Thursday:  [
-            { subject: 'OSLF', slots: [1],   isLab: false, group: null },
-            { subject: 'DET',  slots: [2],   isLab: false, group: null },
-            { subject: 'CP',   slots: [3,4], isLab: true,  group: null },
-            { subject: 'DECA', slots: [7],   isLab: false, group: null },
+            { subject: 'DISC',  slots: [2],   isLab: false },
+            { subject: 'OOP',   slots: [3,4], isLab: true  },
+            { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Friday:    [
-            { subject: 'DECA', slots: [1,2], isLab: true,  group: 'A'  },
-            { subject: 'FEE',  slots: [3,4], isLab: true,  group: null },
-            { subject: 'EXPLORE', slots: [5], isLab: false, group: null },
-            { subject: 'CP',   slots: [7],   isLab: false, group: null },
+            { subject: 'DISC', slots: [2],   isLab: false },
+            { subject: 'OOP',  slots: [3,4], isLab: true  },
+            { subject: 'DBMS', slots: [6,7], isLab: true  },
         ],
     },
 
@@ -213,10 +211,10 @@ const TIMETABLES = {
         ],
     },
 
-    // Second-year timetable, w.e.f. 30 June 2026 (per official Chitkara mentor email)
-    // OOP/DBMS/FEEII are 2-period labs, CN is single-period lecture — confirmed by
-    // cross-checking against the clean G7 and G1 sheets, which show the identical
-    // lab/lecture pattern for these same subjects.
+    // Second-year timetable, w.e.f. 30 June 2026 (per official Chitkara mentor email,
+    // clean full-resolution copy verified 21 Jul 2026). CN is single-period on
+    // Mo/Th but a 2-period LAB on Tuesday (merged cell across periods 3-4) —
+    // do not collapse this back to single-period, it was wrong before.
     G6: {
         Monday:    [
             { subject: 'OOP',  slots: [1,2], isLab: true  },
@@ -225,7 +223,7 @@ const TIMETABLES = {
         ],
         Tuesday:   [
             { subject: 'OOP',   slots: [1,2], isLab: true  },
-            { subject: 'CN',    slots: [3],   isLab: false },
+            { subject: 'CN',    slots: [3,4], isLab: true  },
             { subject: 'FEEII', slots: [6,7], isLab: true  },
         ],
         Wednesday: [
@@ -234,7 +232,7 @@ const TIMETABLES = {
         ],
         Thursday:  [
             { subject: 'OOP',  slots: [1,2], isLab: true  },
-            { subject: 'CN',   slots: [3],   isLab: false },
+            { subject: 'CN',   slots: [4],   isLab: false },
             { subject: 'DBMS', slots: [6,7], isLab: true  },
         ],
         Friday:    [
