@@ -18,6 +18,7 @@ const App = {
         this.render();
         this._updateOnboardingState();
         this.bindEvents();
+        if (Notifications.permission() === 'granted') Notifications.scheduleToday();
         this._initAuth();
     },
 

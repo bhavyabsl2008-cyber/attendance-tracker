@@ -71,6 +71,9 @@ const TimetableUI = {
         if (!batch) return;
 
         Timetable.setup(batch);
+        if (typeof Notifications !== 'undefined' && Notifications.permission() === 'granted') {
+            Notifications.scheduleToday();
+        }
         this._closeModal('tt-modal');
         if (onComplete) onComplete();
     },
