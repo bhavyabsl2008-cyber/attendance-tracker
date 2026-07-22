@@ -252,6 +252,7 @@ const App = {
                     return { ...s, attended: result.attended, delivered: result.delivered };
                 });
                 Storage.saveSubjects(this.subjects);
+                Storage.appendHistory({ type: 'ml' });
                 this.render();
                 UI.toast('Medical Leave applied to all subjects', 'success');
             }
@@ -311,6 +312,7 @@ const App = {
                     this.subjects[idx].delivered += a.count;
                 });
                 Storage.saveSubjects(this.subjects);
+                Storage.appendHistory({ type: 'day-absent' });
                 this.render();
                 UI.toast('Marked absent for today', 'warning');
             }
@@ -382,6 +384,7 @@ const App = {
                     this.subjects[idx].delivered += a.count;
                 });
                 Storage.saveSubjects(this.subjects);
+                Storage.appendHistory({ type: 'dl' });
                 this.render();
                 UI.toast('DL applied for today', 'success');
             }
@@ -461,6 +464,7 @@ const App = {
         }
 
         Storage.saveSubjects(this.subjects);
+        Storage.appendHistory({ type: action === 'attend' ? 'attended' : 'missed', subjectId: id });
 
         // FIX: selector used CSS class name which breaks if class is renamed.
         // Use data-action attribute instead — stable regardless of styling.

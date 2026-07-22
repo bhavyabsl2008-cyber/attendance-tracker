@@ -2,7 +2,8 @@
 
 const STORAGE_KEYS = {
     SUBJECTS: 'chitkara_subjects_v3',
-    SETTINGS: 'chitkara_settings_v3'
+    SETTINGS: 'chitkara_settings_v3',
+    HISTORY: 'chitkara_history_v1',
 };
 
 const Storage = {
@@ -41,6 +42,29 @@ const Storage = {
     saveSubjects(subjects) {
         try {
             localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
+            return true;
+        } catch { return false; }
+    },
+
+    // Lightweight activity log — one entry per attendance-changing action
+    // (Attended/Missed tap, Didn't Go Today, DL, ML). Starts empty for
+    // existing users: there's no way to reconstruct history for actions
+    // logged before this existed, so streaks/trends only count forward
+    // from whenever this shipped, not retroactively.
+    getHistory() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.HISTORY);
+            return data ? JSON.parse(data) : [];
+        } catch { return []; }
+    },
+
+    appendHistory(entry) {
+        try {
+            const history = this.getHistory();
+            history.push({ date: new Date().toISOString().slice(0, 10), ...entry });
+            // cap at 90 days' worth so localStorage doesn't grow unbounded
+            const trimmed = history.slice(-500);
+            localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(trimmed));
             return true;
         } catch { return false; }
     },
