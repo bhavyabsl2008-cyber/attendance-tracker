@@ -67,20 +67,37 @@ const UI = {
     },
 
     // ─── TOOLBAR "MORE" MENU ───
+    _moreMenuListenerBound: false,
+
     toggleMoreMenu(force) {
         const menu = document.getElementById('toolbar-more-menu');
         if (!menu) return;
         const show = force !== undefined ? force : menu.classList.contains('hidden');
         menu.classList.toggle('hidden', !show);
-        if (show) {
-            const closeOnOutsideClick = (e) => {
-                if (!menu.contains(e.target) && !e.target.closest('.toolbar-more-trigger')) {
-                    menu.classList.add('hidden');
-                    document.removeEventListener('click', closeOnOutsideClick);
-                }
-            };
-            setTimeout(() => document.addEventListener('click', closeOnOutsideClick), 0);
-        }
+        this._bindMoreMenuGlobalListener();
+    },
+
+    // Bound exactly once, ever — checks current menu state fresh on every
+    // click/keypress instead of the old pattern of adding a new listener per
+    // open and only cleaning it up on an outside click, which leaked a
+    // listener every time someone closed the menu by picking an item instead.
+    _bindMoreMenuGlobalListener() {
+        if (this._moreMenuListenerBound) return;
+        this._moreMenuListenerBound = true;
+
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('toolbar-more-menu');
+            if (!menu || menu.classList.contains('hidden')) return;
+            if (!menu.contains(e.target) && !e.target.closest('.toolbar-more-trigger')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const menu = document.getElementById('toolbar-more-menu');
+            if (menu) menu.classList.add('hidden');
+        });
     },
 
     // ─── TIME RANGE PICKER (real <input type=time>, replaces prompt()) ───
