@@ -78,6 +78,14 @@
         </div>
     </div>
 
+    <div id="install-banner" class="sync-banner hidden">
+        <span class="sync-banner-text" id="install-banner-text"></span>
+        <div class="sync-banner-actions">
+            <button class="sync-banner-signin" id="install-banner-action"></button>
+            <button class="sync-banner-dismiss" onclick="InstallPrompt.dismiss()" aria-label="Dismiss">✕</button>
+        </div>
+    </div>
+
     <div class="container">
 
         <!-- Summary Bar -->
@@ -232,6 +240,7 @@
     <script src="js/notifications.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/sync-banner.js"></script>
+    <script src="js/install-prompt.js"></script>
     <script src="js/sync.js"></script>
     <script src="js/suggestions.js"></script>
     <script src="js/dashboard.js"></script>
