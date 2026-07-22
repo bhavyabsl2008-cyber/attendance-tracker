@@ -13,6 +13,8 @@ const CACHE_NAME = 'presynce-v1';
 const APP_SHELL = [
     './',
     './index.html',
+    './landing.html',
+    './admin.html',
     './manifest.json',
     './css/style.css',
     './css/timetable.css',
