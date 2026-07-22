@@ -273,6 +273,12 @@ header {
     flex-wrap: wrap;
 }
 
+.header-title-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
 .header-text h1 {
     font-size: 20px;
     font-weight: 600;
