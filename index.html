@@ -67,6 +67,14 @@
         </div>
     </header>
 
+    <div id="sync-banner" class="sync-banner hidden">
+        <span class="sync-banner-text">💡 Sign in with Google to sync your attendance across devices — everything still works fine without it.</span>
+        <div class="sync-banner-actions">
+            <button class="sync-banner-signin" onclick="Auth.signIn()">Sign in</button>
+            <button class="sync-banner-dismiss" onclick="SyncBanner.dismiss()" aria-label="Dismiss">✕</button>
+        </div>
+    </div>
+
     <div class="container">
 
         <!-- Summary Bar -->
@@ -119,28 +127,37 @@
 
         <!-- Toolbar -->
         <div id="toolbar" class="toolbar hidden">
-            <div id="ml-global-card" class="ml-global-card hidden">
-                <div class="ml-global-left">
-                    <div class="ml-global-title">Medical Leave</div>
-                    <div class="ml-global-sub">+5 to all subjects — permanently</div>
-                </div>
-                <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Apply ML</button>
-            </div>
-            <div class="toolbar-primary">
-                <button class="toolbar-btn toolbar-btn-primary" onclick="App.markDayAbsent()">🚫 Didn't Go Today</button>
-                <button class="toolbar-btn toolbar-btn-primary" onclick="App.promptDL()">🏥 Apply DL</button>
-                <button class="toolbar-btn toolbar-btn-primary" onclick="App.openTimetable()">📅 Timetable</button>
+            <div class="action-bar">
+                <button id="ml-global-card" class="action-chip action-chip-ml hidden" onclick="App.applyMLGlobal()" title="+5 to all subjects, permanently">
+                    <span class="action-chip-icon">🩹</span>
+                    <span class="action-chip-label">Apply ML<span class="action-chip-sub">+5 all subjects</span></span>
+                </button>
+                <button class="action-chip action-chip-primary" onclick="App.markDayAbsent()">
+                    <span class="action-chip-icon">🚫</span>
+                    <span class="action-chip-label">Didn't Go Today</span>
+                </button>
+                <button class="action-chip action-chip-primary" onclick="App.promptDL()">
+                    <span class="action-chip-icon">🏥</span>
+                    <span class="action-chip-label">Apply DL</span>
+                </button>
+                <button class="action-chip action-chip-primary" onclick="App.openTimetable()">
+                    <span class="action-chip-icon">📅</span>
+                    <span class="action-chip-label">Timetable</span>
+                </button>
                 <div class="toolbar-more-wrap">
-                    <button class="toolbar-btn toolbar-more-trigger" onclick="UI.toggleMoreMenu()">⋯ More</button>
+                    <button class="action-chip action-chip-outline toolbar-more-trigger" onclick="UI.toggleMoreMenu()">
+                        <span class="action-chip-icon">⋯</span>
+                        <span class="action-chip-label">More</span>
+                    </button>
                     <div id="toolbar-more-menu" class="toolbar-more-menu hidden">
-                        <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)">🔍 Browse Batches</button>
-                        <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)">🩺 Medical Leave Guide</button>
-                        <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)">🔔 Class-End Reminders</button>
-                        <button class="toolbar-more-item" onclick="App.exportData(); UI.toggleMoreMenu(false)">⬇ Export</button>
-                        <label class="toolbar-more-item" for="import-input">⬆ Import
+                        <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔍</span>Browse Batches</button>
+                        <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🩺</span>Medical Leave Guide</button>
+                        <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔔</span>Class-End Reminders</button>
+                        <button class="toolbar-more-item" onclick="App.exportData(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">⬇</span>Export</button>
+                        <label class="toolbar-more-item" for="import-input"><span class="action-chip-icon">⬆</span>Import
                             <input type="file" id="import-input" accept=".json" style="display:none">
                         </label>
-                        <button class="toolbar-more-item" onclick="App.copyShareLink(); UI.toggleMoreMenu(false)">🔗 Share</button>
+                        <button class="toolbar-more-item" onclick="App.copyShareLink(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔗</span>Share</button>
                     </div>
                 </div>
             </div>
@@ -211,6 +228,7 @@
     <script src="js/ui.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sync-banner.js"></script>
     <script src="js/sync.js"></script>
     <script src="js/suggestions.js"></script>
     <script src="js/app.js"></script>

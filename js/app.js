@@ -27,6 +27,7 @@ const App = {
         Auth.init();
         Sync.init();
         Auth.onChange(user => this._updateAccountUI(user));
+        if (typeof SyncBanner !== 'undefined') SyncBanner.init();
     },
 
     _updateAccountUI(user) {

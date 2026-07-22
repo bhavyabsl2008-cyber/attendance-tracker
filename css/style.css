@@ -20,6 +20,8 @@
     --blue: #1a6bcc;
     --blue-dark: #1450a3;
     --blue-light: #eff6ff;
+    --accent: #6d5ce8;
+    --accent-dark: #5644d1;
 
     --bg: #f4f6fb;
     --card: #ffffff;
@@ -61,6 +63,8 @@
     --blue: #60a5fa;
     --blue-dark: #3b82f6;
     --blue-light: #1e3a8a;
+    --accent: #7c6af7;
+    --accent-dark: #6355d6;
 
     --bg: #0f172a;
     --card: #1e293b;
@@ -278,6 +282,54 @@ header {
     color: inherit;
     cursor: pointer;
 }
+
+/* ============ SYNC BANNER ============ */
+.sync-banner {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--accent) 130%);
+    color: #fff;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-size: 13px;
+    flex-wrap: wrap;
+}
+
+.sync-banner.hidden { display: none; }
+
+.sync-banner-text { font-weight: 500; }
+
+.sync-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sync-banner-signin {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: var(--radius-xs);
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.sync-banner-signin:hover { background: rgba(255,255,255,0.28); }
+
+.sync-banner-dismiss {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+}
+
+.sync-banner-dismiss:hover { color: #fff; }
 
 .header-text h1 {
     font-size: 20px;
@@ -701,90 +753,77 @@ header {
 
 .toolbar.hidden { display: none; }
 
-.ml-global-card {
-    flex: 1;
-    min-width: 200px;
-    background: var(--safe-bg);
-    border: 1px solid var(--safe-border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-}
-
-.ml-global-card.hidden { display: none; }
-
-.ml-global-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #064e3b;
-}
-
-.ml-global-sub {
-    font-size: 11px;
-    color: #047857;
-    margin-top: 2px;
-    font-family: var(--font-mono);
-}
-
-.ml-apply-btn {
-    padding: 7px 14px;
-    background: var(--safe);
-    color: white;
-    border: none;
-    border-radius: var(--radius-xs);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: var(--font-body);
-    transition: background var(--transition);
-}
-
-.ml-apply-btn:hover { background: #047857; }
-
-.toolbar-primary {
+.action-bar {
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
 }
 
-.toolbar-btn {
-    padding: 9px 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-soft);
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: all var(--transition);
-    white-space: nowrap;
+.action-chip {
     display: flex;
     align-items: center;
-    gap: 5px;
-}
-
-.toolbar-btn:hover {
-    background: var(--bg);
-    border-color: var(--blue);
-    color: var(--blue);
-}
-
-.toolbar-btn-primary {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: #fff;
+    gap: 8px;
+    padding: 10px 14px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    font-family: var(--font-body);
+    font-size: 13px;
     font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform var(--transition), filter var(--transition), background var(--transition);
 }
 
-.toolbar-btn-primary:hover {
-    filter: brightness(1.08);
+.action-chip:hover { transform: translateY(-1px); }
+.action-chip:active { transform: translateY(0); }
+.action-chip.hidden { display: none; }
+
+.action-chip-icon {
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.action-chip-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.25;
+}
+
+.action-chip-sub {
+    font-size: 10px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    opacity: 0.8;
+}
+
+/* Primary — everyday attendance actions, one unified blue-to-accent identity */
+.action-chip-primary {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--accent) 130%);
     color: #fff;
+}
+.action-chip-primary:hover { filter: brightness(1.07); }
+
+/* ML — same chip shape, distinct semantic color since it's a rare/permanent action */
+.action-chip-ml {
+    background: var(--safe);
+    color: #fff;
+}
+.action-chip-ml:hover { filter: brightness(1.07); }
+
+/* Outline — secondary, low-emphasis (the More trigger) */
+.action-chip-outline {
+    background: var(--card);
+    border-color: var(--border);
+    color: var(--text-soft);
+}
+.action-chip-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: none;
 }
 
 .toolbar-more-wrap {
@@ -793,7 +832,7 @@ header {
 
 .toolbar-more-menu {
     position: absolute;
-    top: calc(100% + 6px);
+    top: calc(100% + 10px);
     right: 0;
     background: var(--card);
     border: 1px solid var(--border);
@@ -803,12 +842,26 @@ header {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    min-width: 190px;
+    min-width: 200px;
     z-index: 20;
 }
 
+/* pointer/caret so the dropdown reads as anchored to its trigger, not floating */
+.toolbar-more-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 16px;
+    width: 12px;
+    height: 12px;
+    background: var(--card);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+}
+
 .toolbar-more-item {
-    padding: 9px 10px;
+    padding: 10px 12px;
     background: none;
     border: none;
     border-radius: var(--radius-xs);
@@ -820,13 +873,13 @@ header {
     text-align: left;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     white-space: nowrap;
 }
 
 .toolbar-more-item:hover {
     background: var(--bg);
-    color: var(--blue);
+    color: var(--accent);
 }
 
 /* ============ TIME RANGE PICKER (DL modal) ============ */
@@ -890,7 +943,7 @@ header {
 .suggestion-submit {
     margin-top: 10px;
     padding: 9px 18px;
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue) 0%, var(--accent) 130%);
     color: #fff;
     border: none;
     border-radius: var(--radius-xs);
