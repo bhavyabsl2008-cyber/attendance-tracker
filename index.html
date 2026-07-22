@@ -126,20 +126,33 @@
                 </div>
                 <button class="ml-apply-btn" onclick="App.applyMLGlobal()">Apply ML</button>
             </div>
-            <div class="toolbar-actions">
-                <button class="toolbar-btn" onclick="App.markDayAbsent()">🚫 Didn't Go Today</button>
-                <button class="toolbar-btn" onclick="App.promptDL()">🏥 Apply DL</button>
-                <button class="tt-toolbar-btn" onclick="App.openTimetable()">📅 Timetable</button>
-                <button class="toolbar-btn" onclick="TimetableUI.showBatchBrowser()">🔍 Browse Batches</button>
-                <button class="toolbar-btn" onclick="MedicalLeave.show()">🩺 Medical Leave Guide</button>
-                <button class="toolbar-btn" onclick="Notifications.requestPermission()">🔔 Class-End Reminders</button>
-                <button class="toolbar-btn" onclick="App.exportData()">Export</button>
-                <label class="toolbar-btn" for="import-input">Import
-                    <input type="file" id="import-input" accept=".json" style="display:none">
-                </label>
-                <button class="toolbar-btn" onclick="App.copyShareLink()">Share</button>
+            <div class="toolbar-primary">
+                <button class="toolbar-btn toolbar-btn-primary" onclick="App.markDayAbsent()">🚫 Didn't Go Today</button>
+                <button class="toolbar-btn toolbar-btn-primary" onclick="App.promptDL()">🏥 Apply DL</button>
+                <button class="toolbar-btn toolbar-btn-primary" onclick="App.openTimetable()">📅 Timetable</button>
+                <div class="toolbar-more-wrap">
+                    <button class="toolbar-btn toolbar-more-trigger" onclick="UI.toggleMoreMenu()">⋯ More</button>
+                    <div id="toolbar-more-menu" class="toolbar-more-menu hidden">
+                        <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)">🔍 Browse Batches</button>
+                        <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)">🩺 Medical Leave Guide</button>
+                        <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)">🔔 Class-End Reminders</button>
+                        <button class="toolbar-more-item" onclick="App.exportData(); UI.toggleMoreMenu(false)">⬇ Export</button>
+                        <label class="toolbar-more-item" for="import-input">⬆ Import
+                            <input type="file" id="import-input" accept=".json" style="display:none">
+                        </label>
+                        <button class="toolbar-more-item" onclick="App.copyShareLink(); UI.toggleMoreMenu(false)">🔗 Share</button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Suggestion box -->
+        <div class="suggestion-box">
+            <div class="suggestion-title">Have a suggestion or found a bug?</div>
+            <textarea id="suggestion-text" class="suggestion-textarea" placeholder="Tell us what's wrong or what you'd like to see..." maxlength="500"></textarea>
+            <button class="suggestion-submit" onclick="Suggestions.submit()">Send</button>
+        </div>
+
 
         <!-- Subject Cards -->
         <div id="subjects-container"></div>
@@ -199,6 +212,7 @@
     <script src="js/notifications.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/sync.js"></script>
+    <script src="js/suggestions.js"></script>
     <script src="js/app.js"></script>
     <script src="js/medical-leave.js"></script>
     <script src="js/privacy.js"></script>

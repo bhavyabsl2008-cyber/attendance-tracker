@@ -739,10 +739,11 @@ header {
 
 .ml-apply-btn:hover { background: #047857; }
 
-.toolbar-actions {
+.toolbar-primary {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .toolbar-btn {
@@ -767,6 +768,133 @@ header {
     border-color: var(--blue);
     color: var(--blue);
 }
+
+.toolbar-btn-primary {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+.toolbar-btn-primary:hover {
+    filter: brightness(1.08);
+    color: #fff;
+}
+
+.toolbar-more-wrap {
+    position: relative;
+}
+
+.toolbar-more-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hover);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 190px;
+    z-index: 20;
+}
+
+.toolbar-more-item {
+    padding: 9px 10px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.toolbar-more-item:hover {
+    background: var(--bg);
+    color: var(--blue);
+}
+
+/* ============ TIME RANGE PICKER (DL modal) ============ */
+.time-range-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.time-range-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-soft);
+}
+
+.time-range-input {
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    font-family: var(--font-body);
+    font-size: 14px;
+    background: var(--card);
+    color: var(--text);
+}
+
+/* ============ SUGGESTION BOX ============ */
+.suggestion-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.suggestion-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+    margin-bottom: 10px;
+}
+
+.suggestion-textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    font-family: var(--font-body);
+    font-size: 13px;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+.suggestion-submit {
+    margin-top: 10px;
+    padding: 9px 18px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.suggestion-submit:hover { filter: brightness(1.08); }
 
 /* ============ SUBJECT CARDS ============ */
 .subject-card {

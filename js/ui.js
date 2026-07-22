@@ -66,6 +66,77 @@ const UI = {
         document.addEventListener('keydown', handleKey);
     },
 
+    // ─── TOOLBAR "MORE" MENU ───
+    toggleMoreMenu(force) {
+        const menu = document.getElementById('toolbar-more-menu');
+        if (!menu) return;
+        const show = force !== undefined ? force : menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !show);
+        if (show) {
+            const closeOnOutsideClick = (e) => {
+                if (!menu.contains(e.target) && !e.target.closest('.toolbar-more-trigger')) {
+                    menu.classList.add('hidden');
+                    document.removeEventListener('click', closeOnOutsideClick);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', closeOnOutsideClick), 0);
+        }
+    },
+
+    // ─── TIME RANGE PICKER (real <input type=time>, replaces prompt()) ───
+    promptTimeRange(title, onConfirm) {
+        document.getElementById('ui-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'ui-modal';
+        modal.className = 'ui-modal-overlay';
+        modal.innerHTML = `
+            <div class="ui-modal-box" role="dialog" aria-modal="true">
+                <div class="ui-modal-title">${title}</div>
+                <div class="ui-modal-body">
+                    <div class="time-range-row">
+                        <label class="time-range-field">
+                            <span>Start</span>
+                            <input type="time" id="tr-start" class="time-range-input">
+                        </label>
+                        <label class="time-range-field">
+                            <span>End</span>
+                            <input type="time" id="tr-end" class="time-range-input">
+                        </label>
+                    </div>
+                </div>
+                <div class="ui-modal-actions">
+                    <button class="ui-modal-cancel" id="modal-cancel">Cancel</button>
+                    <button class="ui-modal-confirm" id="modal-confirm">Apply</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        requestAnimationFrame(() => modal.classList.add('ui-modal-show'));
+        document.getElementById('tr-start').focus();
+
+        const close = () => {
+            modal.classList.remove('ui-modal-show');
+            setTimeout(() => modal.remove(), 200);
+        };
+
+        const submit = () => {
+            const start = document.getElementById('tr-start').value;
+            const end = document.getElementById('tr-end').value;
+            if (!start || !end) {
+                UI.toast('Pick both a start and end time', 'error');
+                return;
+            }
+            close();
+            onConfirm(start, end);
+        };
+
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-confirm').addEventListener('click', submit);
+        modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    },
+
     // ─── INLINE ERRORS ───
     showError(fieldId, message) {
         this.clearError(fieldId);

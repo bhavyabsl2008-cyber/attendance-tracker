@@ -320,20 +320,12 @@ const App = {
     // any period that overlaps it counts as ATTENDED (attended +1, delivered +1
     // per overlapping slot) instead of missed. Kept separate from markDayAbsent
     // so a partial-day DL doesn't touch periods outside the DL window.
-    // UI wrapper for the DL button — asks start/end clock time with two simple
-    // prompts (kept deliberately simple, no custom modal), then hands off to
-    // applyDLForToday. 24-hour HH:MM input, e.g. 14:00.
+    // UI wrapper for the DL button — opens a real time-picker modal, then hands
+    // off to applyDLForToday.
     promptDL() {
-        const start = prompt('DL start time (24hr, e.g. 14:00):');
-        if (!start) return;
-        const end = prompt('DL end time (24hr, e.g. 16:00):');
-        if (!end) return;
-        const timePattern = /^([01]?\d|2[0-3]):[0-5]\d$/;
-        if (!timePattern.test(start) || !timePattern.test(end)) {
-            UI.toast('Enter time as HH:MM, e.g. 14:00', 'error');
-            return;
-        }
-        this.applyDLForToday(start, end);
+        UI.promptTimeRange('When was your DL?', (start, end) => {
+            this.applyDLForToday(start, end);
+        });
     },
 
     applyDLForToday(startTimeStr, endTimeStr) {
