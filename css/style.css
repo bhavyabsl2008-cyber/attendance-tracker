@@ -857,7 +857,7 @@ header {
     position: fixed;
     inset: 0;
     z-index: 19;
-    background: transparent;
+    background: rgba(10,10,26,0.12);
 }
 
 .toolbar-more-menu {
@@ -910,6 +910,21 @@ header {
 .toolbar-more-item:hover {
     background: var(--bg);
     color: var(--accent);
+}
+
+.toolbar-more-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-light);
+    padding: 8px 12px 4px;
+}
+
+.toolbar-more-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 6px;
 }
 
 /* ============ TIME RANGE PICKER (DL modal) ============ */

@@ -161,11 +161,18 @@
                         <span class="action-chip-label">More</span>
                     </button>
                     <div id="toolbar-more-menu" class="toolbar-more-menu hidden">
+                        <div class="toolbar-more-section-label">Attendance</div>
                         <button class="toolbar-more-item" onclick="OCR.triggerUpload(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">📷</span>Upload Chalkpad Screenshot</button>
-                        <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔍</span>Browse Batches</button>
-                        <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🩺</span>Medical Leave Guide</button>
                         <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔔</span>Class-End Reminders</button>
+                        <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔍</span>Browse Batches</button>
+
+                        <div class="toolbar-more-divider"></div>
+                        <div class="toolbar-more-section-label">Tools</div>
                         <button class="toolbar-more-item" onclick="CGPA.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🎓</span>CGPA Calculator</button>
+                        <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🩺</span>Medical Leave Guide</button>
+
+                        <div class="toolbar-more-divider"></div>
+                        <div class="toolbar-more-section-label">Data</div>
                         <button class="toolbar-more-item" onclick="App.exportData(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">⬇</span>Export</button>
                         <label class="toolbar-more-item" for="import-input"><span class="action-chip-icon">⬆</span>Import
                             <input type="file" id="import-input" accept=".json" style="display:none">
