@@ -52,8 +52,8 @@
                     </div>
                     <div class="sem-days-left" id="sem-days-left"></div>
                 </div>
-                <button id="dashboard-btn" class="dark-mode-btn" onclick="Dashboard.show()" title="Your dashboard" aria-label="Open dashboard">
-                    <span class="dark-mode-icon">📊</span>
+                <button id="dashboard-btn" class="dashboard-entry-btn" onclick="Dashboard.show()" title="Your dashboard">
+                    <span>📊</span> Dashboard
                 </button>
                 <button id="dark-mode-btn" class="dark-mode-btn" onclick="DarkMode.toggle()" title="Toggle dark mode" aria-label="Toggle dark mode">
                     <span class="dark-mode-icon">🌙</span>
@@ -164,6 +164,7 @@
                         <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔍</span>Browse Batches</button>
                         <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🩺</span>Medical Leave Guide</button>
                         <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔔</span>Class-End Reminders</button>
+                        <button class="toolbar-more-item" onclick="CGPA.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🎓</span>CGPA Calculator</button>
                         <button class="toolbar-more-item" onclick="App.exportData(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">⬇</span>Export</button>
                         <label class="toolbar-more-item" for="import-input"><span class="action-chip-icon">⬆</span>Import
                             <input type="file" id="import-input" accept=".json" style="display:none">
@@ -244,6 +245,7 @@
     <script src="js/sync.js"></script>
     <script src="js/suggestions.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/cgpa.js"></script>
     <script src="js/app.js"></script>
     <script src="js/medical-leave.js"></script>
     <script src="js/privacy.js"></script>
