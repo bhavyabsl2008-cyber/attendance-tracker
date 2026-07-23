@@ -161,6 +161,7 @@
                         <span class="action-chip-label">More</span>
                     </button>
                     <div id="toolbar-more-menu" class="toolbar-more-menu hidden">
+                        <button class="toolbar-more-item" onclick="OCR.triggerUpload(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">📷</span>Upload Chalkpad Screenshot</button>
                         <button class="toolbar-more-item" onclick="TimetableUI.showBatchBrowser(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔍</span>Browse Batches</button>
                         <button class="toolbar-more-item" onclick="MedicalLeave.show(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🩺</span>Medical Leave Guide</button>
                         <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔔</span>Class-End Reminders</button>
@@ -246,6 +247,7 @@
     <script src="js/suggestions.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/cgpa.js"></script>
+    <script src="js/ocr.js"></script>
     <script src="js/app.js"></script>
     <script src="js/medical-leave.js"></script>
     <script src="js/privacy.js"></script>

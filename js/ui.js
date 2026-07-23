@@ -2,6 +2,12 @@
 
 const UI = {
 
+    _formatDate(isoStr) {
+        try {
+            return new Date(isoStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        } catch { return isoStr; }
+    },
+
     // ─── TOAST ───
     toast(message, type = 'info', duration = 3000) {
         const container = document.getElementById('toast-container');
@@ -67,37 +73,34 @@ const UI = {
     },
 
     // ─── TOOLBAR "MORE" MENU ───
-    _moreMenuListenerBound: false,
-
+    // Uses a full-screen backdrop instead of click-outside-detection — the
+    // previous approach depended on event-bubbling order/timing that turned
+    // out to be unreliable in practice. A backdrop is unambiguous: anything
+    // that isn't the menu itself is the backdrop, so any click outside always
+    // closes it, no edge cases.
     toggleMoreMenu(force) {
         const menu = document.getElementById('toolbar-more-menu');
         if (!menu) return;
         const show = force !== undefined ? force : menu.classList.contains('hidden');
+
         menu.classList.toggle('hidden', !show);
-        this._bindMoreMenuGlobalListener();
-    },
+        document.getElementById('toolbar-more-backdrop')?.remove();
 
-    // Bound exactly once, ever — checks current menu state fresh on every
-    // click/keypress instead of the old pattern of adding a new listener per
-    // open and only cleaning it up on an outside click, which leaked a
-    // listener every time someone closed the menu by picking an item instead.
-    _bindMoreMenuGlobalListener() {
-        if (this._moreMenuListenerBound) return;
-        this._moreMenuListenerBound = true;
+        if (show) {
+            const backdrop = document.createElement('div');
+            backdrop.id = 'toolbar-more-backdrop';
+            backdrop.className = 'toolbar-more-backdrop';
+            backdrop.addEventListener('click', () => this.toggleMoreMenu(false));
+            document.body.appendChild(backdrop);
 
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('toolbar-more-menu');
-            if (!menu || menu.classList.contains('hidden')) return;
-            if (!menu.contains(e.target) && !e.target.closest('.toolbar-more-trigger')) {
-                menu.classList.add('hidden');
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key !== 'Escape') return;
-            const menu = document.getElementById('toolbar-more-menu');
-            if (menu) menu.classList.add('hidden');
-        });
+            const onEscape = (e) => {
+                if (e.key === 'Escape') {
+                    this.toggleMoreMenu(false);
+                    document.removeEventListener('keydown', onEscape);
+                }
+            };
+            document.addEventListener('keydown', onEscape);
+        }
     },
 
     // ─── TIME RANGE PICKER (real <input type=time>, replaces prompt()) ───
@@ -267,6 +270,7 @@ const UI = {
                         data-original="${subject.name}"
                     >${subject.name}</h3>
                     <span class="status-badge ${status}">${statusLabels[status]}</span>
+                    ${subject.dataAsOf ? `<span class="data-asof-badge" title="From your last uploaded chalkpad screenshot">Data as of ${this._formatDate(subject.dataAsOf)}</span>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="edit-btn" onclick="UI.toggleInlineEdit('${subject.id}')" id="edit-btn-${subject.id}">Edit</button>
