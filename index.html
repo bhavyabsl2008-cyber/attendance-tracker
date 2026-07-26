@@ -161,6 +161,10 @@
                         <span class="action-chip-label">More</span>
                     </button>
                     <div id="toolbar-more-menu" class="toolbar-more-menu hidden">
+                        <div class="toolbar-more-header">
+                            <span>Menu</span>
+                            <button class="toolbar-more-close" onclick="UI.toggleMoreMenu(false)" aria-label="Close menu">✕</button>
+                        </div>
                         <div class="toolbar-more-section-label">Attendance</div>
                         <button class="toolbar-more-item" onclick="OCR.triggerUpload(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">📷</span>Upload Chalkpad Screenshot</button>
                         <button class="toolbar-more-item" onclick="Notifications.requestPermission(); UI.toggleMoreMenu(false)"><span class="action-chip-icon">🔔</span>Class-End Reminders</button>

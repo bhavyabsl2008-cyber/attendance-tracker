@@ -8,26 +8,6 @@ const UI = {
         } catch { return isoStr; }
     },
 
-    _buildRing(pct, status) {
-        const size = 72, stroke = 7;
-        const radius = (size - stroke) / 2;
-        const circumference = 2 * Math.PI * radius;
-        const clamped = Math.max(0, Math.min(pct, 100));
-        const offset = circumference * (1 - clamped / 100);
-        const colorVar = `var(--${status})`;
-        return `
-            <svg class="progress-ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-                <circle class="progress-ring-track" cx="${size/2}" cy="${size/2}" r="${radius}" stroke-width="${stroke}" fill="none" />
-                <circle class="progress-ring-fill" cx="${size/2}" cy="${size/2}" r="${radius}" stroke-width="${stroke}" fill="none"
-                    stroke="${colorVar}"
-                    stroke-dasharray="${circumference}"
-                    stroke-dashoffset="${offset}"
-                    stroke-linecap="round"
-                    transform="rotate(-90 ${size/2} ${size/2})" />
-                <text x="50%" y="52%" text-anchor="middle" dominant-baseline="middle" class="progress-ring-text" fill="${colorVar}">${pct}%</text>
-            </svg>`;
-    },
-
     // ─── TOAST ───
     toast(message, type = 'info', duration = 3000) {
         const container = document.getElementById('toast-container');
@@ -340,14 +320,12 @@ const UI = {
 
             <!-- Percentage display -->
             <div class="percentage-row">
-                ${this._buildRing(pct, status)}
-                <div class="percentage-row-text">
-                    <div class="attended-label">
-                        <span>${subject.attended}</span>
-                        <span> / </span>
-                        <span>${subject.delivered}</span>
-                        <span> classes</span>
-                    </div>
+                <div class="percentage ${status}-text">${pct}%</div>
+                <div class="attended-label">
+                    <span>${subject.attended}</span>
+                    <span> / </span>
+                    <span>${subject.delivered}</span>
+                    <span> classes</span>
                 </div>
             </div>
 
