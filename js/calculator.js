@@ -152,7 +152,7 @@ const Calculator = {
     // Semester progress
     semesterProgress() {
         // Dates sourced from Timetable.SEMESTER — single source of truth,
-        // see js/timetable.js (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
+        // see js/timetable-data.js (Ref: CUIET/CSE/ACAD/2026/227a, 13 July 2026)
         const start = new Date(Timetable.SEMESTER.start + 'T00:00:00');
         const end = new Date(Timetable.SEMESTER.end + 'T00:00:00');
         const today = new Date();

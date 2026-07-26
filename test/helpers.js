@@ -19,14 +19,14 @@ function loadApp() {
     };
     vm.createContext(context);
 
-    const files = ['calculator.js', 'timetable.js'];
+    const files = ['calculator.js', 'timetable-data.js', 'timetable-core.js'];
     for (const file of files) {
         const src = fs.readFileSync(path.join(__dirname, '..', 'js', file), 'utf8');
         vm.runInContext(src, context, { filename: file });
     }
-    // Calculator.js references Timetable.SEMESTER at call-time, and timetable.js
-    // is plain `const`, so neither attaches to the context object automatically —
-    // pull them out explicitly.
+    // Calculator.js references Timetable.SEMESTER at call-time, and both
+    // timetable files are plain `const`, so none attach to the context object
+    // automatically — pull them out explicitly.
     vm.runInContext('globalThis.Calculator = Calculator; globalThis.Timetable = Timetable;', context);
 
     return { Calculator: context.Calculator, Timetable: context.Timetable, _context: context };
