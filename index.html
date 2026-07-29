@@ -37,36 +37,6 @@
                 <h1><a href="landing.html" class="header-title-link">Pre<span>synce</span></a></h1>
                 <p>Chitkara University · CSE-3 · Jun–Dec 2026</p>
             </div>
-            <div class="header-controls">
-                <div class="threshold-control">
-                    <label>Min %</label>
-                    <input type="number" id="threshold-input" min="50" max="95" value="75">
-                </div>
-                <div class="sem-progress-wrap">
-                    <div class="sem-progress-label">
-                        <span>Semester progress</span>
-                        <span id="sem-percent">0%</span>
-                    </div>
-                    <div class="sem-progress-bar">
-                        <div class="sem-progress-fill" id="sem-fill"></div>
-                    </div>
-                    <div class="sem-days-left" id="sem-days-left"></div>
-                </div>
-                <button id="dashboard-btn" class="dashboard-entry-btn" onclick="Dashboard.show()" title="Your dashboard">
-                    <span>📊</span> Dashboard
-                </button>
-                <button id="dark-mode-btn" class="dark-mode-btn" onclick="DarkMode.toggle()" title="Toggle dark mode" aria-label="Toggle dark mode">
-                    <span class="dark-mode-icon">🌙</span>
-                </button>
-                <div id="auth-area" class="auth-area">
-                    <button id="signin-btn" class="signin-btn" onclick="Auth.signIn()">Sign in with Google</button>
-                    <div id="account-chip" class="account-chip hidden">
-                        <img id="account-avatar" class="account-avatar" src="" alt="">
-                        <span id="account-name"></span>
-                        <button class="signout-btn" onclick="Auth.signOut()">Sign out</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </header>
 
@@ -86,7 +56,24 @@
         </div>
     </div>
 
-    <div class="container">
+    <!-- ═══════════════ HOME TAB ═══════════════ -->
+    <div class="container tab-panel" id="tab-home">
+
+        <!-- Streak card -->
+        <div class="streak-card">
+            <div class="streak-card-text">
+                <div class="streak-card-label">Logging Streak</div>
+                <div class="streak-card-value"><span id="streak-count">0</span> <span class="streak-card-unit">days in a row</span></div>
+            </div>
+            <div class="streak-card-mascot">🔥</div>
+        </div>
+
+        <!-- Quote card -->
+        <div class="quote-card">
+            <div class="quote-mark">"</div>
+            <div class="quote-text" id="quote-text">Discipline is choosing between what you want now and what you want most.</div>
+            <div class="quote-author" id="quote-author">— Unknown</div>
+        </div>
 
         <!-- Summary Bar -->
         <div id="summary-bar" class="summary-bar hidden">
@@ -105,17 +92,6 @@
             <div class="summary-item danger">
                 <span id="danger-count">0</span>
                 <label>Danger</label>
-            </div>
-        </div>
-
-        <!-- Chart Section -->
-        <div id="chart-section" class="chart-section hidden">
-            <div class="chart-header">
-                <span class="chart-title">Overview</span>
-                <button id="chart-toggle" class="chart-toggle-btn">Hide</button>
-            </div>
-            <div id="chart-body" class="chart-body">
-                <canvas id="attendance-chart"></canvas>
             </div>
         </div>
 
@@ -187,21 +163,11 @@
             </div>
         </div>
 
-        <!-- Suggestion box -->
-        <div class="suggestion-box">
-            <div class="suggestion-title">Have a suggestion or found a bug?</div>
-            <textarea id="suggestion-text" class="suggestion-textarea" placeholder="Tell us what's wrong or what you'd like to see..." maxlength="500"></textarea>
-            <button class="suggestion-submit" onclick="Suggestions.submit()">Send</button>
-        </div>
-
-
         <!-- Subject Cards -->
         <div id="subjects-container"></div>
 
         <!-- Empty State -->
         <div id="empty-state" class="empty-state">
-
-            <!-- Step 1: Timetable setup (shown when timetable not set up) -->
             <div id="onboard-timetable" class="onboard-card onboard-primary">
                 <div class="onboard-step-badge">Step 1</div>
                 <div class="onboard-icon">📅</div>
@@ -214,15 +180,12 @@
                     Just want to look up a batch's timetable? Browse without setting up →
                 </button>
             </div>
-
-            <!-- Step 2: Add subjects (always shown) -->
             <div class="onboard-card onboard-secondary" id="onboard-subjects">
                 <div class="onboard-step-badge" id="onboard-step-badge">Step 2</div>
                 <div class="onboard-icon">📚</div>
                 <div class="onboard-title">Add Your Subjects</div>
                 <div class="onboard-sub">Enter your subjects from Chalkpad with delivered and attended class counts.</div>
             </div>
-
         </div>
 
         <!-- Clear All -->
@@ -232,9 +195,85 @@
 
     </div>
 
-    <footer class="app-footer">
-        <button class="app-footer-link" onclick="Privacy.show()">Privacy</button>
-    </footer>
+    <!-- ═══════════════ ANALYTICS TAB ═══════════════ -->
+    <div class="container tab-panel hidden" id="tab-analytics">
+        <div id="chart-section" class="chart-section">
+            <div class="chart-header">
+                <span class="chart-title">Overview</span>
+                <button id="chart-toggle" class="chart-toggle-btn">Hide</button>
+            </div>
+            <div id="chart-body" class="chart-body">
+                <canvas id="attendance-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="subject-progress-card">
+            <div class="chart-title">By Subject</div>
+            <div id="subject-progress-list"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PROFILE TAB ═══════════════ -->
+    <div class="container tab-panel hidden" id="tab-profile">
+        <div class="profile-section-card">
+            <div id="auth-area" class="auth-area auth-area-profile">
+                <button id="signin-btn" class="signin-btn" onclick="Auth.signIn()">Sign in with Google</button>
+                <div id="account-chip" class="account-chip hidden">
+                    <img id="account-avatar" class="account-avatar" src="" alt="">
+                    <span id="account-name"></span>
+                    <button class="signout-btn" onclick="Auth.signOut()">Sign out</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section-card">
+            <div class="chart-title">Settings</div>
+            <div class="threshold-control profile-threshold">
+                <label>Min %</label>
+                <input type="number" id="threshold-input" min="50" max="95" value="75">
+            </div>
+            <div class="sem-progress-wrap">
+                <div class="sem-progress-label">
+                    <span>Semester progress</span>
+                    <span id="sem-percent">0%</span>
+                </div>
+                <div class="sem-progress-bar">
+                    <div class="sem-progress-fill" id="sem-fill"></div>
+                </div>
+                <div class="sem-days-left" id="sem-days-left"></div>
+            </div>
+            <button id="dashboard-btn" class="dashboard-entry-btn" onclick="Dashboard.show()" title="Your dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button id="dark-mode-btn" class="dark-mode-btn profile-dark-mode-btn" onclick="DarkMode.toggle()" title="Toggle dark mode">
+                <span class="dark-mode-icon">🌙</span> Toggle dark mode
+            </button>
+        </div>
+
+        <!-- Suggestion box -->
+        <div class="suggestion-box">
+            <div class="suggestion-title">Have a suggestion or found a bug?</div>
+            <textarea id="suggestion-text" class="suggestion-textarea" placeholder="Tell us what's wrong or what you'd like to see..." maxlength="500"></textarea>
+            <button class="suggestion-submit" onclick="Suggestions.submit()">Send</button>
+        </div>
+
+        <footer class="app-footer">
+            <button class="app-footer-link" onclick="Privacy.show()">Privacy</button>
+        </footer>
+    </div>
+
+    <!-- Bottom Tab Nav -->
+    <nav class="bottom-tab-nav">
+        <button class="bottom-tab active" data-tab="home" onclick="Tabs.switchTo('home')">
+            <span class="bottom-tab-icon">🏠</span><span>Home</span>
+        </button>
+        <button class="bottom-tab" data-tab="analytics" onclick="Tabs.switchTo('analytics')">
+            <span class="bottom-tab-icon">📊</span><span>Analytics</span>
+        </button>
+        <button class="bottom-tab" data-tab="profile" onclick="Tabs.switchTo('profile')">
+            <span class="bottom-tab-icon">👤</span><span>Profile</span>
+        </button>
+    </nav>
 
     <!-- Firebase (compat SDK — works with plain <script> tags, no bundler needed) -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -251,6 +290,7 @@
     <script src="js/timetable-ui.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/tabs.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/sync-banner.js"></script>

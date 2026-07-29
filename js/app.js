@@ -102,11 +102,17 @@ const App = {
             UI.buildCard(s, Settings.threshold, sem.remainingClasses)
         ).join('');
 
-        // Render chart if visible
+        // Render chart only if the Analytics tab is actually visible AND its
+        // internal show/hide toggle hasn't collapsed it — Chart.js measures
+        // the canvas's rendered size, so drawing into a display:none ancestor
+        // gives it a zero-size canvas to work with.
         const chartBody = document.getElementById('chart-body');
-        if (chartBody && !chartBody.classList.contains('hidden')) {
+        const analyticsTab = document.getElementById('tab-analytics');
+        const analyticsVisible = analyticsTab && !analyticsTab.classList.contains('hidden');
+        if (chartBody && !chartBody.classList.contains('hidden') && analyticsVisible) {
             Charts.render(this.subjects, Settings.threshold);
         }
+        if (analyticsVisible && typeof Tabs !== 'undefined') Tabs._renderSubjectProgressList();
     },
 
     addSubject() {

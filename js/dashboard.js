@@ -101,27 +101,12 @@ const Dashboard = {
         const overallPct = totalDelivered > 0 ? Calculator.percentage(totalAttended, totalDelivered) : null;
 
         const history = Storage.getHistory();
-        const streak = this._computeStreak(history);
+        const streak = Storage.getLoggingStreak();
         const trackingSince = history.length > 0
             ? new Date(history[0].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
             : 'today';
 
         return { overallPct, best, worst, streak, trackingSince };
-    },
-
-    // Consecutive days (counting back from today) with at least one history entry.
-    _computeStreak(history) {
-        if (history.length === 0) return 0;
-        const days = new Set(history.map(h => h.date));
-        let streak = 0;
-        let cursor = new Date();
-        while (true) {
-            const dateStr = cursor.toISOString().slice(0, 10);
-            if (!days.has(dateStr)) break;
-            streak++;
-            cursor.setDate(cursor.getDate() - 1);
-        }
-        return streak;
     },
 
     _escape(str) {

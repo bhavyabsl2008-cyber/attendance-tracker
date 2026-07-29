@@ -69,6 +69,24 @@ const Storage = {
         } catch { return false; }
     },
 
+    // Consecutive days (counting back from today) with at least one history
+    // entry. Shared by Dashboard and the Home-tab streak card — single source
+    // of truth instead of two copies drifting apart.
+    getLoggingStreak() {
+        const history = this.getHistory();
+        if (history.length === 0) return 0;
+        const days = new Set(history.map(h => h.date));
+        let streak = 0;
+        let cursor = new Date();
+        while (true) {
+            const dateStr = cursor.toISOString().slice(0, 10);
+            if (!days.has(dateStr)) break;
+            streak++;
+            cursor.setDate(cursor.getDate() - 1);
+        }
+        return streak;
+    },
+
     getSettings() {
         try {
             const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
