@@ -291,8 +291,11 @@ const UI = {
         const recovery = Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold);
 
         const statusLabels = { safe: 'Safe', warning: 'At Risk', danger: 'Danger', debar: 'Debar Risk' };
-        const worstColor = parseFloat(prediction.worstCase) < threshold ? '#e53935' : '#1D9E75';
-        const bestColor = parseFloat(prediction.bestCase) < threshold ? '#e53935' : '#1D9E75';
+        const _cs = getComputedStyle(document.documentElement);
+        const _danger = _cs.getPropertyValue('--danger').trim();
+        const _safe = _cs.getPropertyValue('--safe').trim();
+        const worstColor = parseFloat(prediction.worstCase) < threshold ? _danger : _safe;
+        const bestColor = parseFloat(prediction.bestCase) < threshold ? _danger : _safe;
 
         return `
         <div class="subject-card ${status}" id="card-${subject.id}" data-id="${subject.id}">
@@ -427,7 +430,14 @@ const UI = {
         const val = parseInt(document.getElementById(`skip-sim-${id}`)?.value) || 0;
         const result = Calculator.simulateSkips(attended, delivered, val);
         const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
+        const _cs = getComputedStyle(document.documentElement);
+        const colors = {
+            verysafe: _cs.getPropertyValue('--safe').trim(),
+            safe: _cs.getPropertyValue('--safe').trim(),
+            warning: _cs.getPropertyValue('--warning').trim(),
+            danger: _cs.getPropertyValue('--danger').trim(),
+            debar: _cs.getPropertyValue('--debar').trim(),
+        };
         const el = document.getElementById(`skip-result-${id}`);
         if (el) {
             if (val === 0) {
@@ -442,7 +452,14 @@ const UI = {
         const val = parseInt(document.getElementById(`attend-sim-${id}`)?.value) || 0;
         const result = Calculator.simulateAttends(attended, delivered, val);
         const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
+        const _cs = getComputedStyle(document.documentElement);
+        const colors = {
+            verysafe: _cs.getPropertyValue('--safe').trim(),
+            safe: _cs.getPropertyValue('--safe').trim(),
+            warning: _cs.getPropertyValue('--warning').trim(),
+            danger: _cs.getPropertyValue('--danger').trim(),
+            debar: _cs.getPropertyValue('--debar').trim(),
+        };
         const el = document.getElementById(`attend-result-${id}`);
         if (el) {
             if (val === 0) {
