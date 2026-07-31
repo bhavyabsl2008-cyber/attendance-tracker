@@ -73,34 +73,68 @@ const UI = {
     },
 
     // ─── TOOLBAR "MORE" MENU ───
-    // Uses a full-screen backdrop instead of click-outside-detection — the
-    // previous approach depended on event-bubbling order/timing that turned
-    // out to be unreliable in practice. A backdrop is unambiguous: anything
-    // that isn't the menu itself is the backdrop, so any click outside always
-    // closes it, no edge cases.
+    // Portal pattern: the menu is moved to <body> when open so it escapes
+    // every ancestor stacking context (subject-card animations, toolbar flex
+    // layout, container constraints). Positioned with position:fixed using
+    // the trigger button's viewport rect. Returned to .toolbar-more-wrap on
+    // close so the DOM stays clean.
     toggleMoreMenu(force) {
         const menu = document.getElementById('toolbar-more-menu');
         if (!menu) return;
-        const show = force !== undefined ? force : menu.classList.contains('hidden');
+        const show = force !== undefined ? force : !menu.classList.contains('is-open');
 
-        menu.classList.toggle('hidden', !show);
+        // ── Always tear down previous state ──
         document.getElementById('toolbar-more-backdrop')?.remove();
-
-        if (show) {
-            const backdrop = document.createElement('div');
-            backdrop.id = 'toolbar-more-backdrop';
-            backdrop.className = 'toolbar-more-backdrop';
-            backdrop.addEventListener('click', () => this.toggleMoreMenu(false));
-            document.body.appendChild(backdrop);
-
-            const onEscape = (e) => {
-                if (e.key === 'Escape') {
-                    this.toggleMoreMenu(false);
-                    document.removeEventListener('keydown', onEscape);
-                }
-            };
-            document.addEventListener('keydown', onEscape);
+        if (this._moreMenuTeardown) {
+            this._moreMenuTeardown();
+            this._moreMenuTeardown = null;
         }
+
+        if (!show) {
+            // Return menu to its original parent if it was portaled
+            const wrap = document.querySelector('.toolbar-more-wrap');
+            if (wrap && menu.parentElement !== wrap) wrap.appendChild(menu);
+            menu.classList.remove('is-open');
+            menu.classList.add('hidden');
+            menu.style.cssText = '';
+            return;
+        }
+
+        // ── Open ──
+        const trigger = document.querySelector('.toolbar-more-trigger');
+        if (!trigger) return;
+        const rect = trigger.getBoundingClientRect();
+
+        // Portal: move to <body> to escape all ancestor stacking contexts
+        document.body.appendChild(menu);
+        menu.classList.add('is-open');
+        menu.classList.remove('hidden');
+        menu.style.position = 'fixed';
+        menu.style.top = `${rect.bottom + 10}px`;
+        menu.style.right = `${window.innerWidth - rect.right}px`;
+
+        // Backdrop (sibling of menu at body level → same stacking context)
+        const backdrop = document.createElement('div');
+        backdrop.id = 'toolbar-more-backdrop';
+        backdrop.className = 'toolbar-more-backdrop';
+        backdrop.addEventListener('click', () => this.toggleMoreMenu(false));
+        document.body.appendChild(backdrop);
+
+        // Close on Escape
+        const onEscape = (e) => {
+            if (e.key === 'Escape') this.toggleMoreMenu(false);
+        };
+        document.addEventListener('keydown', onEscape);
+
+        // Close on scroll (trigger has moved out from under the menu)
+        const onScroll = () => this.toggleMoreMenu(false);
+        window.addEventListener('scroll', onScroll, true);
+
+        // Store teardown so listeners are properly cleaned up on close
+        this._moreMenuTeardown = () => {
+            document.removeEventListener('keydown', onEscape);
+            window.removeEventListener('scroll', onScroll, true);
+        };
     },
 
     // ─── TIME RANGE PICKER (real <input type=time>, replaces prompt()) ───
