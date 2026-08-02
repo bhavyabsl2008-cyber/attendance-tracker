@@ -311,6 +311,7 @@ header {
     flex-wrap: wrap;
 }
 
+.quote-author.hidden { display: none; }
 .sync-banner.hidden { display: none; }
 
 .sync-banner-text { font-weight: 500; }

@@ -24,6 +24,10 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/timetable.css">
+
+    <!-- Loaded in <head>, before any body content, so the persisted theme
+         is applied before first paint (no light-mode flash on reload). -->
+    <script src="js/darkmode.js"></script>
 </head>
 <body>
 
@@ -72,7 +76,7 @@
         <div class="quote-card">
             <div class="quote-mark">"</div>
             <div class="quote-text" id="quote-text">Discipline is choosing between what you want now and what you want most.</div>
-            <div class="quote-author" id="quote-author">— Unknown</div>
+            <div class="quote-author hidden" id="quote-author"></div>
         </div>
 
         <!-- Summary Bar -->
@@ -184,7 +188,10 @@
                 <div class="onboard-step-badge" id="onboard-step-badge">Step 2</div>
                 <div class="onboard-icon">📚</div>
                 <div class="onboard-title">Add Your Subjects</div>
-                <div class="onboard-sub">Enter your subjects from Chalkpad with delivered and attended class counts.</div>
+                <div class="onboard-sub">Enter your subjects from Chalkpad with delivered and attended class counts, or upload a screenshot and we'll read them for you.</div>
+                <button class="onboard-cta-btn" onclick="OCR.triggerUpload()">
+                    📷 Upload Chalkpad Screenshot →
+                </button>
             </div>
         </div>
 
@@ -281,7 +288,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
 
-    <script src="js/darkmode.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/calculator.js"></script>
     <script src="js/settings.js"></script>

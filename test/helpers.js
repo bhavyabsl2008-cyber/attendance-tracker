@@ -53,4 +53,28 @@ function unfreezeToday(app) {
     vm.runInContext('if (globalThis.__RealDate) globalThis.Date = globalThis.__RealDate;', app._context);
 }
 
-module.exports = { loadApp, freezeToday, unfreezeToday };
+// Loads storage.js in its own vm context, same pattern as loadApp() above.
+// Separate from loadApp() because storage.js is a different concern
+// (persistence, not pure math) and none of the existing calculator/timetable
+// tests need it — keeping it isolated avoids widening what loadApp() loads
+// for every existing test file.
+function loadStorage() {
+    const context = {
+        localStorage: {
+            _data: {},
+            getItem(key) { return this._data[key] ?? null; },
+            setItem(key, val) { this._data[key] = val; },
+            removeItem(key) { delete this._data[key]; },
+        },
+        console,
+    };
+    vm.createContext(context);
+
+    const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'storage.js'), 'utf8');
+    vm.runInContext(src, context, { filename: 'storage.js' });
+    vm.runInContext('globalThis.Storage = Storage; globalThis.STORAGE_KEYS = STORAGE_KEYS;', context);
+
+    return { Storage: context.Storage, STORAGE_KEYS: context.STORAGE_KEYS, _context: context };
+}
+
+module.exports = { loadApp, loadStorage, freezeToday, unfreezeToday };

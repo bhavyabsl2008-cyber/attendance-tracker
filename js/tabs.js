@@ -67,15 +67,19 @@ const Tabs = {
     },
 
     _quotes: [
-        { text: "Discipline is choosing between what you want now and what you want most.", author: "Unknown" },
-        { text: "Small daily improvements are the key to staggering long-term results.", author: "Unknown" },
+        { text: "Discipline is choosing between what you want now and what you want most.", author: null },
+        { text: "Small daily improvements are the key to staggering long-term results.", author: null },
         { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
-        { text: "Consistency is what transforms average into excellence.", author: "Unknown" },
-        { text: "Show up. Every day. That's the secret.", author: "Unknown" },
+        { text: "Consistency is what transforms average into excellence.", author: null },
+        { text: "Show up. Every day. That's the secret.", author: null },
     ],
 
     // Same quote all day (deterministic on today's date), not a fresh random
     // pick on every tab switch — otherwise it'd feel glitchy re-rendering.
+    //
+    // Never shows a placeholder attribution (Unknown/Anonymous/etc). Quotes
+    // with no legitimate author render with the attribution element hidden
+    // entirely, not left as an empty visual slot.
     _renderQuote() {
         const textEl = document.getElementById('quote-text');
         const authorEl = document.getElementById('quote-author');
@@ -83,7 +87,17 @@ const Tabs = {
         const dayIndex = Math.floor(Date.now() / 86400000);
         const quote = this._quotes[dayIndex % this._quotes.length];
         textEl.textContent = quote.text;
-        authorEl.textContent = `— ${quote.author}`;
+
+        const placeholders = new Set(['unknown', 'anonymous', 'n/a', 'null', 'undefined', '']);
+        const hasAuthor = quote.author != null && !placeholders.has(String(quote.author).trim().toLowerCase());
+
+        if (hasAuthor) {
+            authorEl.textContent = `— ${quote.author}`;
+            authorEl.classList.remove('hidden');
+        } else {
+            authorEl.textContent = '';
+            authorEl.classList.add('hidden');
+        }
     },
 
     _escape(str) {
