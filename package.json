@@ -1,0 +1,8 @@
+{
+  "name": "presynce",
+  "private": true,
+  "description": "Attendance tracker for Chitkara University CSE-3. No build step, no dependencies — this package.json exists only to run the test suite.",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

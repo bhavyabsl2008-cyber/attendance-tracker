@@ -25,13 +25,19 @@ const Charts = {
 
         const labels = this._makeLabels(subjects);
         const data = subjects.map(s => Calculator.percentage(s.attended, s.delivered));
+        const cs = getComputedStyle(document.documentElement);
+        const statusColors = {
+            safe:    cs.getPropertyValue('--safe').trim(),
+            warning: cs.getPropertyValue('--warning').trim(),
+            danger:  cs.getPropertyValue('--danger').trim(),
+            debar:   cs.getPropertyValue('--debar').trim(),
+        };
         const colors = data.map(p => {
             const status = Calculator.status(p, threshold);
-            if (status === 'safe')    return '#059669';
-            if (status === 'warning') return '#d97706';
-            if (status === 'danger')  return '#dc2626';
-            return '#7f1d1d';
+            return statusColors[status] || statusColors.debar;
         });
+        const gridColor = cs.getPropertyValue('--grid-line').trim();
+        const thresholdColor = cs.getPropertyValue('--threshold-line').trim();
 
         if (this._instance) {
             this._instance.destroy();
@@ -67,7 +73,7 @@ const Charts = {
                 scales: {
                     y: {
                         min: 0, max: 100,
-                        grid: { color: '#f0f0f0' },
+                        grid: { color: gridColor },
                         ticks: { callback: val => val + '%', font: { size: 11, family: "'DM Mono', monospace" } }
                     },
                     x: {
@@ -86,11 +92,11 @@ const Charts = {
                     ctx.beginPath();
                     ctx.moveTo(left, yPos);
                     ctx.lineTo(right, yPos);
-                    ctx.strokeStyle = '#1a6bcc';
+                    ctx.strokeStyle = thresholdColor;
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([5, 4]);
                     ctx.stroke();
-                    ctx.fillStyle = '#1a6bcc';
+                    ctx.fillStyle = thresholdColor;
                     ctx.font = "11px 'DM Mono', monospace";
                     ctx.fillText(`${threshold}% min`, right - 58, yPos - 5);
                     ctx.restore();

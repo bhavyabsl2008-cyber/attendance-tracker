@@ -115,7 +115,8 @@ js/
 ├── storage.js        // localStorage CRUD, import/export JSON, URL sharing
 ├── calculator.js     // Pure math engine (percentage, status, predictions)
 ├── settings.js       // Threshold management (50–95%, default 75%)
-├── timetable.js      // G1–G9 hardcoded timetable data
+├── timetable-data.js // G1–G9 hardcoded timetable data, semester calendar, holidays
+├── timetable-core.js // Timetable state, storage, day lookup, subject matching, DL overlap
 ├── timetable-ui.js   // Timetable modal UI, day editor, DL picker
 ├── charts.js         // Chart.js bar chart with threshold line
 ├── ui.js             // All DOM rendering (cards, simulators, toasts)

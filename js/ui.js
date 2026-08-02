@@ -2,6 +2,12 @@
 
 const UI = {
 
+    _formatDate(isoStr) {
+        try {
+            return new Date(isoStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        } catch { return isoStr; }
+    },
+
     // ─── TOAST ───
     toast(message, type = 'info', duration = 3000) {
         const container = document.getElementById('toast-container');
@@ -64,6 +70,125 @@ const UI = {
             if (e.key === 'Enter') { close(); onConfirm(); document.removeEventListener('keydown', handleKey); }
         };
         document.addEventListener('keydown', handleKey);
+    },
+
+    // ─── TOOLBAR "MORE" MENU ───
+    // Portal pattern: the menu is moved to <body> when open so it escapes
+    // every ancestor stacking context (subject-card animations, toolbar flex
+    // layout, container constraints). Positioned with position:fixed using
+    // the trigger button's viewport rect. Returned to .toolbar-more-wrap on
+    // close so the DOM stays clean.
+    toggleMoreMenu(force) {
+        const menu = document.getElementById('toolbar-more-menu');
+        if (!menu) return;
+        const show = force !== undefined ? force : !menu.classList.contains('is-open');
+
+        // ── Always tear down previous state ──
+        document.getElementById('toolbar-more-backdrop')?.remove();
+        if (this._moreMenuTeardown) {
+            this._moreMenuTeardown();
+            this._moreMenuTeardown = null;
+        }
+
+        if (!show) {
+            // Return menu to its original parent if it was portaled
+            const wrap = document.querySelector('.toolbar-more-wrap');
+            if (wrap && menu.parentElement !== wrap) wrap.appendChild(menu);
+            menu.classList.remove('is-open');
+            menu.classList.add('hidden');
+            menu.style.cssText = '';
+            return;
+        }
+
+        // ── Open ──
+        const trigger = document.querySelector('.toolbar-more-trigger');
+        if (!trigger) return;
+        const rect = trigger.getBoundingClientRect();
+
+        // Portal: move to <body> to escape all ancestor stacking contexts
+        document.body.appendChild(menu);
+        menu.classList.add('is-open');
+        menu.classList.remove('hidden');
+        menu.style.position = 'fixed';
+        menu.style.top = `${rect.bottom + 10}px`;
+        menu.style.right = `${window.innerWidth - rect.right}px`;
+
+        // Backdrop (sibling of menu at body level → same stacking context)
+        const backdrop = document.createElement('div');
+        backdrop.id = 'toolbar-more-backdrop';
+        backdrop.className = 'toolbar-more-backdrop';
+        backdrop.addEventListener('click', () => this.toggleMoreMenu(false));
+        document.body.appendChild(backdrop);
+
+        // Close on Escape
+        const onEscape = (e) => {
+            if (e.key === 'Escape') this.toggleMoreMenu(false);
+        };
+        document.addEventListener('keydown', onEscape);
+
+        // Close on scroll (trigger has moved out from under the menu)
+        const onScroll = () => this.toggleMoreMenu(false);
+        window.addEventListener('scroll', onScroll, true);
+
+        // Store teardown so listeners are properly cleaned up on close
+        this._moreMenuTeardown = () => {
+            document.removeEventListener('keydown', onEscape);
+            window.removeEventListener('scroll', onScroll, true);
+        };
+    },
+
+    // ─── TIME RANGE PICKER (real <input type=time>, replaces prompt()) ───
+    promptTimeRange(title, onConfirm) {
+        document.getElementById('ui-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'ui-modal';
+        modal.className = 'ui-modal-overlay';
+        modal.innerHTML = `
+            <div class="ui-modal-box" role="dialog" aria-modal="true">
+                <div class="ui-modal-title">${title}</div>
+                <div class="ui-modal-body">
+                    <div class="time-range-row">
+                        <label class="time-range-field">
+                            <span>Start</span>
+                            <input type="time" id="tr-start" class="time-range-input">
+                        </label>
+                        <label class="time-range-field">
+                            <span>End</span>
+                            <input type="time" id="tr-end" class="time-range-input">
+                        </label>
+                    </div>
+                </div>
+                <div class="ui-modal-actions">
+                    <button class="ui-modal-cancel" id="modal-cancel">Cancel</button>
+                    <button class="ui-modal-confirm" id="modal-confirm">Apply</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        requestAnimationFrame(() => modal.classList.add('ui-modal-show'));
+        document.getElementById('tr-start').focus();
+
+        const close = () => {
+            modal.classList.remove('ui-modal-show');
+            setTimeout(() => modal.remove(), 200);
+        };
+
+        const submit = () => {
+            const start = document.getElementById('tr-start').value;
+            const end = document.getElementById('tr-end').value;
+            if (!start || !end) {
+                UI.toast('Pick both a start and end time', 'error');
+                return;
+            }
+            close();
+            onConfirm(start, end);
+        };
+
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-confirm').addEventListener('click', submit);
+        modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
     },
 
     // ─── INLINE ERRORS ───
@@ -150,7 +275,6 @@ const UI = {
     buildCard(subject, threshold, remainingClasses) {
         const pct = Calculator.percentage(subject.attended, subject.delivered);
         const status = Calculator.status(pct, threshold);
-        const skips = Calculator.safeSkips(subject.attended, subject.delivered, threshold);
         const needed = Calculator.classesNeeded(subject.attended, subject.delivered, threshold);
         // Prefer the real, per-subject weekday-aware count when a timetable is set up;
         // fall back to the flat semester-wide heuristic otherwise.
@@ -159,16 +283,19 @@ const UI = {
         const prediction = Calculator.predictEndSem(subject.attended, subject.delivered, effectiveRemaining);
         const alert = Calculator.smartAlert(subject.attended, subject.delivered, threshold, effectiveRemaining);
 
-        // When below threshold, "Can miss" becomes "of the classes left this semester,
-        // how many can I still afford to skip and recover" — bounded and reachability-checked,
-        // instead of the flat 0 it used to show.
-        const recovery = pct < threshold
-            ? Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold)
-            : null;
+        // "Can miss" always answers the same question regardless of current percentage:
+        // of the classes left this semester, how many can still be missed while still
+        // reaching threshold by semester end. Using one formula everywhere — above AND
+        // below threshold — instead of switching models at the 75% line, which used to
+        // cause a jarring discontinuity (69% showing "can miss 20", then 75% showing "0").
+        const recovery = Calculator.maxMissableToReachThreshold(subject.attended, subject.delivered, effectiveRemaining, threshold);
 
         const statusLabels = { safe: 'Safe', warning: 'At Risk', danger: 'Danger', debar: 'Debar Risk' };
-        const worstColor = parseFloat(prediction.worstCase) < threshold ? '#e53935' : '#1D9E75';
-        const bestColor = parseFloat(prediction.bestCase) < threshold ? '#e53935' : '#1D9E75';
+        const _cs = getComputedStyle(document.documentElement);
+        const _danger = _cs.getPropertyValue('--danger').trim();
+        const _safe = _cs.getPropertyValue('--safe').trim();
+        const worstColor = parseFloat(prediction.worstCase) < threshold ? _danger : _safe;
+        const bestColor = parseFloat(prediction.bestCase) < threshold ? _danger : _safe;
 
         return `
         <div class="subject-card ${status}" id="card-${subject.id}" data-id="${subject.id}">
@@ -180,6 +307,7 @@ const UI = {
                         data-original="${subject.name}"
                     >${subject.name}</h3>
                     <span class="status-badge ${status}">${statusLabels[status]}</span>
+                    ${subject.dataAsOf ? `<span class="data-asof-badge" title="From your last uploaded chalkpad screenshot">Data as of ${this._formatDate(subject.dataAsOf)}</span>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="edit-btn" onclick="UI.toggleInlineEdit('${subject.id}')" id="edit-btn-${subject.id}">Edit</button>
@@ -250,11 +378,8 @@ const UI = {
             <!-- Stats -->
             <div class="card-stats">
                 <div class="stat">
-                    ${recovery === null ? `
-                        <span class="${skips > 5 ? 'safe' : skips > 0 ? 'warning' : 'danger'}-text">${skips}</span>
-                        <label>Can miss</label>
-                    ` : recovery.reachable ? `
-                        <span class="${recovery.canMiss > 0 ? 'warning' : 'danger'}-text">${recovery.canMiss}</span>
+                    ${recovery.reachable ? `
+                        <span class="${recovery.canMiss > 5 ? 'safe' : recovery.canMiss > 0 ? 'warning' : 'danger'}-text">${recovery.canMiss}</span>
                         <label>Can still miss</label>
                     ` : `
                         <span class="debar-text">—</span>
@@ -297,91 +422,7 @@ const UI = {
                 </div>
             </div>
 
-            <!-- Leave simulator -->
-            <div class="leave-simulator">
-                <div class="leave-header">
-                    <span class="leave-title">Leave Simulator</span>
-                    <div class="pill-toggle">
-                        <button class="pill active" id="pill-fullday-${subject.id}"
-                            onclick="UI.switchLeaveType('${subject.id}', 'fullday')">Full Day DL</button>
-                        <button class="pill" id="pill-partial-${subject.id}"
-                            onclick="UI.switchLeaveType('${subject.id}', 'partial')">Partial DL</button>
-                        <button class="pill" id="pill-ml-${subject.id}"
-                            onclick="UI.switchLeaveType('${subject.id}', 'ml')">ML</button>
-                    </div>
-                </div>
-
-                <div id="leave-fullday-${subject.id}" class="leave-panel">
-                    ${Timetable.isSetup()
-                        ? TimetableUI.buildDLDayPicker(subject.id)
-                        : `<label>Classes held that day</label>
-                           <input type="number" min="0" max="10" value="0"
-                               id="dl-classes-${subject.id}"
-                               oninput="UI.updateLeave('${subject.id}')">
-                           <div style="margin-top:8px;font-size:11px;color:var(--muted);font-family:var(--font-mono)">
-                               Set up your timetable for auto-calculation
-                           </div>`
-                    }
-                </div>
-
-                <div id="leave-partial-${subject.id}" class="leave-panel hidden">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="dl-partial-check-${subject.id}"
-                            onchange="UI.updateLeave('${subject.id}')">
-                        <span>I have a class during the event time</span>
-                    </label>
-                </div>
-
-                <div id="leave-ml-${subject.id}" class="leave-panel hidden">
-                    <p class="ml-note">Medical Leave adds 5 classes to both attended and delivered for this subject</p>
-                </div>
-
-                <div class="leave-result" id="leave-result-${subject.id}">
-                    Select leave type and enter details
-                </div>
-            </div>
-
         </div>`;
-    },
-
-    // ─── LEAVE SIMULATOR ───
-    switchLeaveType(id, type) {
-        ['fullday', 'partial', 'ml'].forEach(t => {
-            const pill = document.getElementById(`pill-${t}-${id}`);
-            const panel = document.getElementById(`leave-${t}-${id}`);
-            if (pill) pill.classList.toggle('active', t === type);
-            if (panel) panel.classList.toggle('hidden', t !== type);
-        });
-        this.updateLeave(id);
-    },
-
-    updateLeave(id) {
-        const subject = App.subjects.find(s => s.id === id);
-        if (!subject) return;
-
-        const activePill = document.querySelector(`#pill-fullday-${id}.active, #pill-partial-${id}.active, #pill-ml-${id}.active`);
-        if (!activePill) return;
-        const type = activePill.id.includes('fullday') ? 'fullday' : activePill.id.includes('partial') ? 'partial' : 'ml';
-
-        let result;
-        if (type === 'fullday') {
-            const classes = parseInt(document.getElementById(`dl-classes-${id}`)?.value) || 0;
-            result = Calculator.applyFullDayDL(subject.attended, subject.delivered, classes);
-        } else if (type === 'partial') {
-            const hasClass = document.getElementById(`dl-partial-check-${id}`)?.checked || false;
-            result = Calculator.applyPartialDL(subject.attended, subject.delivered, hasClass);
-        } else {
-            // ML on card is always simulation only — never writes to storage
-            result = Calculator.applyML(subject.attended, subject.delivered);
-        }
-
-        const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { safe: '#1D9E75', warning: '#BA7517', danger: '#e53935', debar: '#7f0000' };
-        const color = colors[status];
-        const resultDiv = document.getElementById(`leave-result-${id}`);
-        if (resultDiv) {
-            resultDiv.innerHTML = `After leave: <strong style="color:${color}">${result.percentage}%</strong> (${result.attended}/${result.delivered} classes)`;
-        }
     },
 
     // ─── SKIP/ATTEND SIMULATORS ───
@@ -389,7 +430,14 @@ const UI = {
         const val = parseInt(document.getElementById(`skip-sim-${id}`)?.value) || 0;
         const result = Calculator.simulateSkips(attended, delivered, val);
         const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
+        const _cs = getComputedStyle(document.documentElement);
+        const colors = {
+            verysafe: _cs.getPropertyValue('--safe').trim(),
+            safe: _cs.getPropertyValue('--safe').trim(),
+            warning: _cs.getPropertyValue('--warning').trim(),
+            danger: _cs.getPropertyValue('--danger').trim(),
+            debar: _cs.getPropertyValue('--debar').trim(),
+        };
         const el = document.getElementById(`skip-result-${id}`);
         if (el) {
             if (val === 0) {
@@ -404,7 +452,14 @@ const UI = {
         const val = parseInt(document.getElementById(`attend-sim-${id}`)?.value) || 0;
         const result = Calculator.simulateAttends(attended, delivered, val);
         const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { verysafe: '#10b981', safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
+        const _cs = getComputedStyle(document.documentElement);
+        const colors = {
+            verysafe: _cs.getPropertyValue('--safe').trim(),
+            safe: _cs.getPropertyValue('--safe').trim(),
+            warning: _cs.getPropertyValue('--warning').trim(),
+            danger: _cs.getPropertyValue('--danger').trim(),
+            debar: _cs.getPropertyValue('--debar').trim(),
+        };
         const el = document.getElementById(`attend-result-${id}`);
         if (el) {
             if (val === 0) {

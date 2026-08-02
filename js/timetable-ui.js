@@ -71,6 +71,9 @@ const TimetableUI = {
         if (!batch) return;
 
         Timetable.setup(batch);
+        if (typeof Notifications !== 'undefined' && Notifications.permission() === 'granted') {
+            Notifications.scheduleToday();
+        }
         this._closeModal('tt-modal');
         if (onComplete) onComplete();
     },
@@ -185,6 +188,18 @@ const TimetableUI = {
         });
     },
 
+    // For a multi-slot entry (e.g. a 2-period lab), returns the merged time range
+    // (start of the first slot to end of the last slot) instead of just the first
+    // slot's single-hour time — a lab from 9-10 and 10-11 should read "9:00–11:00".
+    _getTimeRange(slotIds) {
+        const first = Timetable.SLOTS.find(s => s.id === slotIds[0]);
+        const last = Timetable.SLOTS.find(s => s.id === slotIds[slotIds.length - 1]);
+        if (!first || !last) return '';
+        const startTime = first.time.split('–')[0];
+        const endTime = last.time.split('–')[1];
+        return `${startTime}–${endTime}`;
+    },
+
     _renderDaySlots(entries) {
         if (!entries) entries = [];
 
@@ -202,7 +217,7 @@ const TimetableUI = {
             if (entry && entry.slots[0] === slot.id) {
                 return `
                     <div class="tt-slot ${entry.isLab ? 'tt-slot-lab' : ''}">
-                        <span class="tt-slot-time">${slot.time}</span>
+                        <span class="tt-slot-time">${this._getTimeRange(entry.slots)}</span>
                         <span class="tt-slot-subject">${entry.subject}</span>
                         ${entry.isLab ? '<span class="tt-slot-tag">Lab</span>' : ''}
                         <span class="tt-slot-count">×${entry.attendanceCount}</span>
@@ -366,89 +381,6 @@ const TimetableUI = {
         setTimeout(() => this.showDayEditor(day), 200);
     },
 
-    // ── DL DAY PICKER ──
-    // Called from the leave simulator on a subject card
-    // Returns HTML for the Full Day DL section when timetable is set up
-    buildDLDayPicker(subjectId) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        return `
-            <div class="tt-dl-picker">
-                <label class="tt-dl-label">Which date?</label>
-                <input type="date" class="tt-date-input" id="tt-dl-date-${subjectId}"
-                    value="${yyyy}-${mm}-${dd}"
-                    onchange="TimetableUI.selectDLDate('${subjectId}', this.value)">
-                <div class="tt-dl-breakdown" id="tt-dl-breakdown-${subjectId}">
-                    <span class="tt-dl-hint">Select a date to see impact</span>
-                </div>
-            </div>
-        `;
-    },
-
-    selectDLDate(subjectId, dateStr) {
-        if (!dateStr) return;
-
-        const breakdown = document.getElementById(`tt-dl-breakdown-${subjectId}`);
-        const resultDiv = document.getElementById(`leave-result-${subjectId}`);
-
-        // Holiday check first — no classes at all that day, regardless of weekday
-        const holiday = Timetable.isHoliday(dateStr);
-        if (holiday) {
-            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">${holiday.name} — no classes held</span>`;
-            if (resultDiv) resultDiv.innerHTML = `${holiday.name} — no classes held, no attendance impact.`;
-            return;
-        }
-
-        // Map the date to a weekday name our timetable understands
-        const jsDay = new Date(dateStr + 'T00:00:00').getDay(); // 0 = Sunday
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const day = dayNames[jsDay];
-
-        if (day === 'Sunday' || day === 'Saturday') {
-            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">No classes on ${day}</span>`;
-            if (resultDiv) resultDiv.innerHTML = `No classes on ${day} — no attendance impact.`;
-            return;
-        }
-
-        const impact = Timetable.getDLImpact(day, App.subjects);
-
-        if (impact.length === 0) {
-            if (breakdown) breakdown.innerHTML = `<span class="tt-dl-hint">No classes on ${day}</span>`;
-            if (resultDiv) resultDiv.innerHTML = `No classes on ${day} — no attendance impact.`;
-            return;
-        }
-
-        // Show breakdown of all subjects affected
-        if (breakdown) {
-            breakdown.innerHTML = impact.map(item => `
-                <div class="tt-impact-row ${item.matched ? '' : 'tt-impact-unmatched'}">
-                    <span class="tt-impact-subject">${item.subjectName}</span>
-                    <span class="tt-impact-count">+${item.attendanceCount} class${item.attendanceCount > 1 ? 'es' : ''}</span>
-                </div>
-            `).join('');
-        }
-
-        // Update leave result for THIS subject card
-        const subject = App.subjects.find(s => s.id === subjectId);
-        if (!subject || !resultDiv) return;
-
-        // Find how many classes this specific subject has on that day
-        const subjectCode = impact.find(i => i.subjectId === subjectId);
-        const classesForThisSubject = subjectCode?.attendanceCount || 0;
-
-        if (classesForThisSubject === 0) {
-            resultDiv.innerHTML = `No <strong>${subject.name}</strong> on ${day} — no impact for this subject.`;
-            return;
-        }
-
-        const result = Calculator.applyFullDayDL(subject.attended, subject.delivered, classesForThisSubject);
-        const status = Calculator.status(result.percentage, Settings.threshold);
-        const colors = { safe: '#34d399', warning: '#fbbf24', danger: '#f87171', debar: '#fca5a5' };
-        resultDiv.innerHTML = `DL on ${day}: <strong style="color:${colors[status]}">${result.percentage}%</strong> (${result.attended}/${result.delivered} classes) — ${classesForThisSubject} class${classesForThisSubject > 1 ? 'es' : ''} credited`;
-    },
-
     _closeModal(id) {
         const modal = document.getElementById(id);
         if (!modal) return;
@@ -456,6 +388,3 @@ const TimetableUI = {
         setTimeout(() => modal.remove(), 200);
     },
 };
-
-// Verify TimetableUI loaded
-console.log('✓ TimetableUI loaded', typeof TimetableUI);

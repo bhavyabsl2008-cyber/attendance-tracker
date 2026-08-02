@@ -2,7 +2,8 @@
 
 const STORAGE_KEYS = {
     SUBJECTS: 'chitkara_subjects_v3',
-    SETTINGS: 'chitkara_settings_v3'
+    SETTINGS: 'chitkara_settings_v3',
+    HISTORY: 'chitkara_history_v1',
 };
 
 const Storage = {
@@ -43,6 +44,68 @@ const Storage = {
             localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
             return true;
         } catch { return false; }
+    },
+
+    // Lightweight activity log — one entry per attendance-changing action
+    // (Attended/Missed tap, Didn't Go Today, DL, ML). Starts empty for
+    // existing users: there's no way to reconstruct history for actions
+    // logged before this existed, so streaks/trends only count forward
+    // from whenever this shipped, not retroactively.
+    getHistory() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.HISTORY);
+            return data ? JSON.parse(data) : [];
+        } catch { return []; }
+    },
+
+    appendHistory(entry) {
+        try {
+            const history = this.getHistory();
+            history.push({ date: new Date().toISOString().slice(0, 10), ...entry });
+            // cap at 90 days' worth so localStorage doesn't grow unbounded
+            const trimmed = history.slice(-500);
+            localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(trimmed));
+            return true;
+        } catch { return false; }
+    },
+
+    // Consecutive RELEVANT logging days (counting back from today) with at
+    // least one history entry. Shared by Dashboard and the Home-tab streak
+    // card — single source of truth instead of two copies drifting apart.
+    //
+    // Weekend-aware: Sat/Sun are neutral, non-required days. They never
+    // break a streak and never themselves count toward it — a Friday log
+    // followed by a Monday log is treated as consecutive. If today itself
+    // is a weekend day, we skip backward over it before evaluating so
+    // opening the app on a weekend still shows Friday's streak.
+    // (No timetable-aware "did this batch actually have class" logic yet —
+    // that requires reliable per-student timetable data, tracked separately.)
+    getLoggingStreak() {
+        const history = this.getHistory();
+        if (history.length === 0) return 0;
+        const days = new Set(history.map(h => h.date));
+        let streak = 0;
+        let cursor = new Date();
+
+        // Skip backward over a weekend today is sitting on, without
+        // requiring a log on those days.
+        while (cursor.getDay() === 0 || cursor.getDay() === 6) {
+            cursor.setDate(cursor.getDate() - 1);
+        }
+
+        while (true) {
+            const isWeekend = cursor.getDay() === 0 || cursor.getDay() === 6;
+            if (isWeekend) {
+                // Neutral day: doesn't count, doesn't break the streak.
+                cursor.setDate(cursor.getDate() - 1);
+                continue;
+            }
+            const dateStr = cursor.toISOString().slice(0, 10);
+            if (!days.has(dateStr)) break;
+            streak++;
+            cursor.setDate(cursor.getDate() - 1);
+        }
+        return streak;
     },
 
     getSettings() {
